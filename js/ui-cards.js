@@ -20,7 +20,7 @@ window.UiCards = (function () {
     }
 
     cardsList.innerHTML = mdIndex.map(item => `
-      <div class="card" data-id="${item.id}" data-file="${item.file}" data-title="${item.title}">
+      <div class="card" dir="auto" data-id="${item.id}" data-file="${item.file}" data-title="${item.title}">
         <div class="card-icon">
           <iconify-icon icon="${iconForItem(item)}"></iconify-icon>
         </div>
@@ -48,6 +48,8 @@ window.UiCards = (function () {
         </div>
       </div>
     `).join('');
+
+    cardsList.setAttribute('dir', 'ltr');
 
     cardsList.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', () => {

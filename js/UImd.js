@@ -1,7 +1,7 @@
 /* =========================================================
-   Uimd.js — محرك عرض Markdown ثابت
+   UImd.js — محرك عرض Markdown ثابت
    - Parse (marked)
-   - Emoji → iconify (🟢 / 🟡 / 🔴 / 🔊)
+   - Emoji → iconify (🟢 / 🟡 / 🔴)
    - Build accordions (Forward + Build pass) داخل grid wrapper
    - Group checkbox في هيدر كل مجموعة
    - تحويل جداول الكلمات إلى word-cards
@@ -31,7 +31,7 @@ window.Uimd = (function () {
     }
   }
 
-  /* ---------- Accordion building (Forward + Build pass) ---------- */
+  /* ---------- Accordion building ---------- */
   function buildAccordions(container) {
     const children = Array.from(container.children);
     const sections = [];
@@ -61,10 +61,12 @@ window.Uimd = (function () {
     if (sections.length) {
       const gridWrap = document.createElement('div');
       gridWrap.className = 'accordion-groups-grid';
+      gridWrap.setAttribute('dir', 'ltr');
 
       sections.forEach(section => {
         const acc = document.createElement('div');
         acc.className = 'accordion-group';
+        acc.setAttribute('dir', 'auto');
 
         const header = document.createElement('div');
         header.className = 'accordion-header';
@@ -101,9 +103,15 @@ window.Uimd = (function () {
   function transformWordTables(container) {
     const tables = container.querySelectorAll('.accordion-content table');
     tables.forEach((table, tableIndex) => {
+
+      // ✅ حماية: لو الجدول مفيهوش أيقونة صعوبة (🟢/🟡/🔴) سيبه جدول عادي
+      const hasStatusIcon = !!table.querySelector('tbody tr td iconify-icon[icon="mdi:circle"]');
+      if (!hasStatusIcon) return;
+
       const rows = Array.from(table.querySelectorAll('tbody tr'));
       const list = document.createElement('div');
       list.className = 'word-list';
+      list.setAttribute('dir', 'ltr');
 
       rows.forEach((row, rowIndex) => {
         const cells = Array.from(row.querySelectorAll('td'));
@@ -126,6 +134,7 @@ window.Uimd = (function () {
         const slug = wordText.replace(/\s+/g, '_').toLowerCase();
         const card = document.createElement('div');
         card.className = 'word-card';
+        card.setAttribute('dir', 'auto');
         card.dataset.wordSlug = `t${tableIndex}_r${rowIndex}_${slug}`;
         card.dataset.wordText = wordText;
         card.dataset.meaningText = meaningText;
