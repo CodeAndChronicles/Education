@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E.English · Study Platform</title>
+
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* ========== CSS VARIABLES ========== */
+    :root {
+      --font-main: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      --bg: #f5faf7;
+      --surface: #ffffff;
+      --text: #1a2e2a;
+      --text-secondary: #3d5e56;
+      --primary: #2e8b6e;
+      --primary-light: #6fc2a3;
+      --primary-soft: #d9f0e6;
+      --border: #cfe6dc;
+      --shadow: 0 8px 20px rgba(0, 40, 20, 0.06);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --transition: 0.2s ease;
+      --success: #2e8b6e;
+      --danger: #c0392b;
+    }
+
+    .dark {
+      --bg: #0f1a17;
+      --surface: #1a2b26;
+      --text: #e3f0ea;
+      --text-secondary: #b0cfc2;
+      --primary: #5eae8b;
+      --primary-light: #2e7b5e;
+      --primary-soft: #1e3a31;
+      --border: #2e4d41;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      --success: #6fc2a3;
+      --danger: #e57373;
+    }
+
+    /* ========== RESET ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #app { max-width: 900px; width: 100%; margin: 0 auto; }
+
+    /* ========== TOP BAR ========== */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.5px;
+    }
+    .logo iconify-icon { font-size: 2rem; }
+
+    .theme-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      font-family: var(--font-main);
+    }
+    .theme-toggle:hover { border-color: var(--primary); }
+    .theme-toggle iconify-icon { font-size: 1.4rem; color: var(--primary); }
+
+    /* ========== SEARCH ========== */
+    .search-section { margin-bottom: 24px; position: relative; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 6px 6px 6px 22px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    .search-box:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    .search-box iconify-icon {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      padding: 14px 0;
+      color: var(--text);
+      outline: none;
+      font-family: var(--font-main);
+      direction: auto;
+    }
+    .search-box input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
+    .search-box button {
+      background: var(--primary);
+      border: none;
+      border-radius: 40px;
+      padding: 12px 28px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-main);
+      flex-shrink: 0;
+    }
+    .search-box button:hover { background: var(--primary-light); }
+
+    .search-results {
+      margin-top: 16px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 8px 0;
+      max-height: 380px;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    .search-results.active { display: block; }
+
+    .search-result-item {
+      padding: 12px 22px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: var(--primary-soft); }
+
+    .search-result-item .file-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-result-item .match-line {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      word-break: break-word;
+      direction: auto;
+    }
+    .search-result-item .match-line mark {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
+      padding: 0 2px;
+      border-radius: 4px;
+    }
+
+    /* ========== CARDS ========== */
+    .cards-grid { display: flex; flex-direction: column; gap: 14px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--primary); }
+
+    .card-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .card-title { font-weight: 700; font-size: 1.15rem; color: var(--text); direction: auto; }
+    .card-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-arrow iconify-icon { font-size: 1.8rem; color: var(--primary); }
+
+    /* ========== VIEWER ========== */
+    .viewer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      font-family: var(--font-main);
+    }
+    .back-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .back-btn iconify-icon { font-size: 1.4rem; }
+
+    .file-title-view {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      direction: auto;
+    }
+
+    /* ========== PROGRESS ========== */
+    .progress-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .progress-info strong { color: var(--primary); }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: var(--primary-soft);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 20px;
+      transition: width 0.4s ease;
+    }
+
+    /* ========== TOOLS BAR (Open/Close All) ========== */
+    .tools-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-main);
+    }
+    .tool-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .tool-btn iconify-icon { font-size: 1.2rem; }
+
+    /* ========== MARKDOWN BODY ========== */
+    .markdown-body {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 20px 18px;
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      direction: auto;
+    }
+
+    .markdown-body h1, .markdown-body h2 {
+      color: var(--primary);
+      margin: 20px 0 12px;
+      font-size: 1.3rem;
+      direction: auto;
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.95rem;
+    }
+    .markdown-body th {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 700;
+      padding: 12px 10px;
+      text-align: start;
+      border-bottom: 2px solid var(--primary);
+      direction: auto;
+    }
+    .markdown-body td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      text-align: start;
+      direction: auto;
+    }
+    .markdown-body tr:last-child td { border-bottom: none; }
+
+    /* ========== ACCORDION ========== */
+    .accordion-group {
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .accordion-header {
+      background: var(--primary-soft);
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+      font-family: var(--font-main);
+      gap: 12px;
+      direction: auto;
+    }
+    .accordion-header:hover {
+      background: var(--primary-light);
+      color: white;
+    }
+    .accordion-header .accordion-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .accordion-header .group-counter {
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .accordion-header iconify-icon {
+      font-size: 1.5rem;
+      transition: transform 0.25s ease;
+    }
+    .accordion-header.open iconify-icon { transform: rotate(180deg); }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+      background: var(--surface);
+    }
+    .accordion-content.open { overflow-y: auto; }
+
+    .accordion-content table { margin: 0; }
+    .accordion-content table th,
+    .accordion-content table td { padding: 10px 14px; }
+
+    /* ========== WORD CONTROLS ========== */
+    .word-row-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      justify-content: center;
+    }
+
+    .word-check {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      line-height: 1;
+      font-family: var(--font-main);
+    }
+    .icon-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .icon-btn iconify-icon { font-size: 1.2rem; }
+
+    /* ========== TOAST ========== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--primary);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      font-family: var(--font-main);
+      max-width: 90vw;
+      text-align: center;
+      direction: auto;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ========== UTILS ========== */
+    .hidden { display: none !important; }
+    .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .logo { font-size: 1.4rem; }
+      .logo iconify-icon { font-size: 1.6rem; }
+      .search-box { padding: 4px 4px 4px 16px; }
+      .search-box button { padding: 10px 18px; font-size: 0.85rem; }
+      .card { padding: 14px 16px; }
+      .card-title { font-size: 1rem; }
+      .markdown-body { padding: 12px 10px; }
+      .markdown-body th, .markdown-body td { padding: 8px 6px; font-size: 0.85rem; }
+      .accordion-content table th,
+      .accordion-content table td { padding: 8px 8px; }
+      .word-row-controls { gap: 4px; }
+      .icon-btn { padding: 4px 8px; }
+      .icon-btn iconify-icon { font-size: 1rem; }
+      .file-title-view { font-size: 1rem; }
+      .accordion-header { padding: 12px 12px; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- ===== TOP BAR ===== -->
+    <div class="top-bar">
+      <div class="logo">
+        <iconify-icon icon="mdi:book-open-page-variant"></iconify-icon>
+        E.English
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+        <iconify-icon id="themeIcon" icon="mdi:weather-sunny"></iconify-icon>
+        <span id="themeLabel">Light</span>
+      </button>
+    </div>
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="homePage">
+      <div class="search-section">
+        <div class="search-box">
+          <iconify-icon icon="mdi:magnify"></iconify-icon>
+          <input type="text" id="globalSearchInput"
+                 placeholder="ابحث في كل الملفات (عربي أو إنجليزي)..."
+                 autocomplete="off">
+          <button id="searchBtn">
+            <iconify-icon icon="mdi:magnify"></iconify-icon> Search
+          </button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+
+      <div class="cards-grid" id="cardsList">
+        <div class="loading">Loading files...</div>
+      </div>
+    </div>
+
+    <!-- ===== VIEWER PAGE ===== -->
+    <div id="viewerPage" class="hidden">
+
+      <div class="viewer-header">
+        <button class="back-btn" id="backBtn">
+          <iconify-icon icon="mdi:arrow-left"></iconify-icon> Back
+        </button>
+        <div class="file-title-view">
+          <iconify-icon icon="mdi:file-document-outline"></iconify-icon>
+          <span id="viewerTitleText"></span>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-info">
+          <span>
+            <iconify-icon icon="mdi:progress-check" style="vertical-align:middle;"></iconify-icon>
+            Progress
+          </span>
+          <span><strong id="progressText">0 / 0</strong> words saved</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Tools bar -->
+      <div class="tools-bar">
+        <button class="tool-btn" id="expandAllBtn">
+          <iconify-icon icon="mdi:unfold-more-horizontal"></iconify-icon> افتح الكل
+        </button>
+        <button class="tool-btn" id="collapseAllBtn">
+          <iconify-icon icon="mdi:unfold-less-horizontal"></iconify-icon> اقفل الكل
+        </button>
+      </div>
+
+      <!-- Markdown content -->
+      <div class="markdown-body" id="markdownContent"></div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    // ================= CONFIG =================
+    const MD_INDEX_URL = 'md.json';
+    const STORAGE_PREFIX = 'ee_';
+
+    // ================= STATE =================
+    let mdIndex = [];
+    let currentFileId = null;
+    let searchResultsData = [];
+    const fileCache = new Map(); // filePath -> markdown text
+
+    // ================= DOM =================
+    const homePage = document.getElementById('homePage');
+    const viewerPage = document.getElementById('viewerPage');
+    const cardsList = document.getElementById('cardsList');
+    const backBtn = document.getElementById('backBtn');
+    const viewerTitleText = document.getElementById('viewerTitleText');
+    const markdownContent = document.getElementById('markdownContent');
+    const globalSearchInput = document.getElementById('globalSearchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResults = document.getElementById('searchResults');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+    const toast = document.getElementById('toast');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const expandAllBtn = document.getElementById('expandAllBtn');
+    const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+    // ================= UTILS =================
+    function showToast(msg, duration = 2000) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window.__toastT);
+      window.__toastT = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function getWordKey(fileId, wordId) {
+      return `${STORAGE_PREFIX}word_${fileId}_${wordId}`;
+    }
+    function isWordSaved(fileId, wordId) {
+      return localStorage.getItem(getWordKey(fileId, wordId)) === 'true';
+    }
+    function setWordSaved(fileId, wordId, saved) {
+      if (saved) localStorage.setItem(getWordKey(fileId, wordId), 'true');
+      else localStorage.removeItem(getWordKey(fileId, wordId));
+    }
+
+    async function copyRowText(word, translation) {
+      const text = `${word} - ${translation}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied: ' + text);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); showToast('Copied: ' + text); }
+        catch (err) { showToast('Copy failed'); }
+        ta.remove();
+      }
+    }
+
+    function speakWord(word) {
+      if (!window.speechSynthesis) {
+        showToast('Speech not supported');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(word);
+      u.lang = 'en-US';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }
+
+    // ================= THEME =================
+    function initTheme() {
+      const stored = localStorage.getItem(STORAGE_PREFIX + 'theme');
+      if (stored === 'dark') {
+        document.body.classList.add('dark');
+        themeIcon.setAttribute('icon', 'mdi:weather-night');
+        themeLabel.textContent = 'Dark';
+      } else {
+        document.body.classList.remove('dark');
+        themeIcon.setAttribute('icon', 'mdi:weather-sunny');
+        themeLabel.textContent = 'Light';
+      }
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark');
+      if (isDark) {
+        localStorage.setItem(STORAGE_PREFIX + 'theme', 'dark');
+        themeIcon.setAttribute('icon', 'mdi:weather-night');
+        themeLabel.textContent = 'Dark';
+      } else {
+        localStorage.setItem(STORAGE_PREFIX + 'theme', 'light');
+        themeIcon.setAttribute('icon', 'mdi:weather-sunny');
+        themeLabel.textContent = 'Light';
+      }
+    });
+
+    // ================= LOAD INDEX =================
+    async function loadIndex() {
+      try {
+        const res = await fetch(MD_INDEX_URL);
+        if (!res.ok) throw new Error('Failed to load md.json');
+        mdIndex = await res.json();
+        renderHomeCards();
+      } catch (err) {
+        console.error(err);
+        cardsList.innerHTML = `<div class="loading" style="color:red;">⚠️ Could not load md.json — make sure it exists.</div>`;
+      }
+    }
+
+    // ================= RENDER HOME CARDS =================
+    function renderHomeCards() {
+      if (!mdIndex.length) {
+        cardsList.innerHTML = `<div class="loading">No files available yet.</div>`;
+        return;
+      }
+      cardsList.innerHTML = mdIndex.map(item => `
+        <div class="card" data-id="${item.id}" data-file="${item.file}" data-title="${item.title}">
+          <div class="card-info">
+            <div class="card-title">${item.title}</div>
+            <div class="card-date">
+              <iconify-icon icon="mdi:calendar"></iconify-icon>
+              ${item.date || '—'}
+            </div>
+          </div>
+          <div class="card-arrow">
+            <iconify-icon icon="mdi:chevron-right"></iconify-icon>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          openFile(card.dataset.id, card.dataset.file, card.dataset.title);
+        });
+      });
+    }
+
+    // ================= OPEN FILE =================
+    async function openFile(id, filePath, title) {
+      try {
+        homePage.classList.add('hidden');
+        viewerPage.classList.remove('hidden');
+        viewerTitleText.textContent = title || id;
+
+        let mdText = fileCache.get(filePath);
+        if (!mdText) {
+          const res = await fetch(filePath);
+          if (!res.ok) throw new Error('File not found');
+          mdText = await res.text();
+          fileCache.set(filePath, mdText);
+        }
+
+        currentFileId = id;
+        renderMarkdown(mdText, id);
+      } catch (err) {
+        console.error(err);
+        markdownContent.innerHTML =
+          `<div style="color:red;padding:20px;">⚠️ Could not load file: ${filePath}</div>`;
+      }
+    }
+
+    // ================= RENDER MARKDOWN =================
+    function renderMarkdown(mdText, fileId) {
+      const rawHtml = marked.parse(mdText);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = rawHtml;
+
+      // 1) Replace emojis with iconify icons
+      replaceEmojisInTextNodes(tempDiv);
+
+      // 2) Add controls (checkbox + speak + copy) to each table row
+      addControlsToTables(tempDiv, fileId);
+
+      // 3) Build accordions from H3 (Forward Pass + Build Pass)
+      buildAccordions(tempDiv);
+
+      // 4) Inject final HTML
+      markdownContent.innerHTML = tempDiv.innerHTML;
+
+      // 5) Attach events / update counters
+      attachAccordionEvents();
+      updateGroupCounters(fileId);
+      updateOverallProgress(fileId);
+    }
+
+    // ---------- Emoji replacement ----------
+    function replaceEmojisInTextNodes(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent;
+        if (!text) return;
+        const newHtml = text
+          .replace(/🟢/g, '<iconify-icon icon="mdi:circle" style="color:var(--success);font-size:1.1em;vertical-align:middle;"></iconify-icon>')
+          .replace(/🔴/g, '<iconify-icon icon="mdi:circle" style="color:var(--danger);font-size:1.1em;vertical-align:middle;"></iconify-icon>')
+          .replace(/🔊/g, '<iconify-icon icon="mdi:volume-high" style="font-size:1.1em;vertical-align:middle;"></iconify-icon>');
+        if (newHtml !== text) {
+          const span = document.createElement('span');
+          span.innerHTML = newHtml;
+          node.parentNode.replaceChild(span, node);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
+        Array.from(node.childNodes).forEach(child => replaceEmojisInTextNodes(child));
+      }
+    }
+
+    // ---------- Add controls to tables ----------
+    function addControlsToTables(container, fileId) {
+      const tables = container.querySelectorAll('table');
+      tables.forEach((table, tableIndex) => {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach((row, rowIndex) => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length < 2) return;
+
+          const wordText = cells[0].textContent.trim();
+          const transText = cells[1].textContent.trim();
+
+          // Unique id per word: file + table index + row index + word slug
+          const wordId = `${fileId}_t${tableIndex}_r${rowIndex}_${wordText.replace(/\s+/g, '_').toLowerCase()}`;
+          row.dataset.wordId = wordId;
+          row.dataset.fileId = fileId;
+
+          const controlCell = document.createElement('td');
+          controlCell.style.whiteSpace = 'nowrap';
+          controlCell.style.width = '1%';
+          controlCell.className = 'controls-cell';
+
+          const wrap = document.createElement('div');
+          wrap.className = 'word-row-controls';
+
+          // Checkbox
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'word-check';
+          checkbox.checked = isWordSaved(fileId, wordId);
+          checkbox.addEventListener('change', (e) => {
+            setWordSaved(fileId, wordId, e.target.checked);
+            if (e.target.checked) showToast('Saved ✓');
+            updateGroupCounters(fileId);
+            updateOverallProgress(fileId);
+          });
+
+          // Speak
+          const speakBtn = document.createElement('button');
+          speakBtn.className = 'icon-btn';
+          speakBtn.setAttribute('aria-label', 'Speak word');
+          speakBtn.innerHTML = '<iconify-icon icon="mdi:volume-high"></iconify-icon>';
+          speakBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speakWord(wordText);
+          });
+
+          // Copy
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'icon-btn';
+          copyBtn.setAttribute('aria-label', 'Copy row');
+          copyBtn.innerHTML = '<iconify-icon icon="mdi:content-copy"></iconify-icon>';
+          copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            copyRowText(wordText, transText);
+          });
+
+          wrap.append(checkbox, speakBtn, copyBtn);
+          controlCell.appendChild(wrap);
+          row.appendChild(controlCell);
+        });
+
+        // Add header cell for controls column
+        const headerRow = table.querySelector('thead tr');
+        if (headerRow) {
+          const th = document.createElement('th');
+          th.innerHTML = '<iconify-icon icon="mdi:cog-outline" style="vertical-align:middle;"></iconify-icon>';
+          th.style.textAlign = 'center';
+          th.style.width = '1%';
+          th.title = 'Tools';
+          headerRow.appendChild(th);
+        }
+      });
+    }
+
+    // ---------- Build accordions (FIXED: forward + build) ----------
+    function buildAccordions(container) {
+      // ===== PHASE 1: FORWARD PASS — collect, don't modify =====
+      const children = Array.from(container.children);
+      const sections = []; // [{ heading, nodes: [] }, ...]
+      const rootNodes = []; // anything outside any H3 section
+      let currentSection = null;
+
+      children.forEach(el => {
+        const tag = el.tagName;
+
+        if (tag === 'H3') {
+          // Close previous section
+          if (currentSection) sections.push(currentSection);
+          currentSection = { heading: el.textContent.trim(), nodes: [] };
+        } else if (tag === 'H1' || tag === 'H2') {
+          // H1/H2 → close current section, and this node (plus following) go to root
+          if (currentSection) {
+            sections.push(currentSection);
+            currentSection = null;
+          }
+          rootNodes.push(el);
+        } else {
+          if (currentSection) currentSection.nodes.push(el);
+          else rootNodes.push(el);
+        }
+      });
+      if (currentSection) sections.push(currentSection);
+
+      // ===== PHASE 2: BUILD PASS — clear and rebuild =====
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      // 2a) Re-add root nodes (H1/H2 + anything before first H3)
+      rootNodes.forEach(n => container.appendChild(n));
+
+      // 2b) Append accordions in order
+      sections.forEach(section => {
+        const accordion = document.createElement('div');
+        accordion.className = 'accordion-group';
+        accordion.dataset.heading = section.heading;
+
+        const header = document.createElement('div');
+        header.className = 'accordion-header';
+        header.innerHTML = `
+          <span class="accordion-title">${section.heading}</span>
+          <span class="accordion-meta">
+            <span class="group-counter" data-counter>0/0</span>
+            <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+          </span>
+        `;
+
+        const content = document.createElement('div');
+        content.className = 'accordion-content';
+        section.nodes.forEach(n => content.appendChild(n));
+
+        accordion.appendChild(header);
+        accordion.appendChild(content);
+        container.appendChild(accordion);
+      });
+    }
+
+    // ---------- Accordion events (dynamic scrollHeight) ----------
+    function attachAccordionEvents() {
+      document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const content = header.nextElementSibling;
+          const isOpen = header.classList.toggle('open');
+          if (isOpen) {
+            content.classList.add('open');
+            content.style.maxHeight = content.scrollHeight + 'px';
+          } else {
+            content.classList.remove('open');
+            content.style.maxHeight = '0px';
+          }
+        });
+      });
+    }
+
+    // ---------- Group counters ----------
+    function updateGroupCounters(fileId) {
+      document.querySelectorAll('.accordion-group').forEach(acc => {
+        const counter = acc.querySelector('[data-counter]');
+        if (!counter) return;
+
+        const checkboxes = acc.querySelectorAll('.word-check');
+        const total = checkboxes.length;
+        let saved = 0;
+        checkboxes.forEach(cb => {
+          const row = cb.closest('tr');
+          if (!row) return;
+          const wordId = row.dataset.wordId;
+          if (wordId && isWordSaved(fileId, wordId)) saved++;
+        });
+        counter.textContent = `${saved}/${total}`;
+      });
+    }
+
+    // ---------- Overall progress ----------
+    function updateOverallProgress(fileId) {
+      const allCheckboxes = markdownContent.querySelectorAll('.word-check');
+      const total = allCheckboxes.length;
+      let saved = 0;
+      allCheckboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        if (!row) return;
+        const wordId = row.dataset.wordId;
+        if (wordId && isWordSaved(fileId, wordId)) saved++;
+      });
+
+      progressText.textContent = `${saved} / ${total}`;
+      const pct = total > 0 ? (saved / total) * 100 : 0;
+      progressFill.style.width = pct + '%';
+    }
+
+    // ================= EXPAND / COLLAPSE ALL =================
+    expandAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('.accordion-header').forEach(header => {
+        if (!header.classList.contains('open')) {
+          header.classList.add('open');
+          const content = header.nextElementSibling;
+          content.classList.add('open');
+          // Use requestAnimationFrame to allow content to render
+          requestAnimationFrame(() => {
+            content.style.maxHeight = content.scrollHeight + 'px';
+          });
+        }
+      });
+    });
+
+    collapseAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('.accordion-header').forEach(header => {
+        if (header.classList.contains('open')) {
+          header.classList.remove('open');
+          const content = header.nextElementSibling;
+          content.classList.remove('open');
+          content.style.maxHeight = '0px';
+        }
+      });
+    });
+
+    // ================= GLOBAL SEARCH =================
+    async function performGlobalSearch(query) {
+      query = query.trim().toLowerCase();
+      if (!query) {
+        searchResults.classList.remove('active');
+        searchResults.innerHTML = '';
+        return;
+      }
+
+      // Show spinner
+      searchResults.innerHTML = `
+        <div style="padding:20px;text-align:center;color:var(--text-secondary);">
+          <iconify-icon icon="mdi:loading" style="animation:spin 1s linear infinite;font-size:1.8rem;color:var(--primary);"></iconify-icon>
+          <div style="margin-top:8px;">جاري البحث...</div>
+        </div>`;
+      searchResults.classList.add('active');
+
+      // Wait a tick so the spinner actually renders before the heavy loop
+      await new Promise(r => setTimeout(r, 30));
+
+      const results = [];
+
+      for (const item of mdIndex) {
+        try {
+          let text = fileCache.get(item.file);
+          if (!text) {
+            const res = await fetch(item.file);
+            if (!res.ok) continue;
+            text = await res.text();
+            fileCache.set(item.file, text);
+          }
+
+          const lines = text.split('\n');
+          lines.forEach((line, idx) => {
+            if (line.toLowerCase().includes(query)) {
+              const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const regex = new RegExp(`(${escaped})`, 'gi');
+              const highlighted = line.replace(regex, '<mark>$1</mark>');
+              results.push({
+                fileId: item.id,
+                fileTitle: item.title,
+                filePath: item.file,
+                line: highlighted,
+                lineIndex: idx
+              });
+            }
+          });
+        } catch (e) { /* skip file */ }
+      }
+
+      searchResultsData = results;
+
+      if (!results.length) {
+        searchResults.innerHTML =
+          `<div style="padding:16px;text-align:center;color:var(--text-secondary);">No results found for "${query}"</div>`;
+      } else {
+        searchResults.innerHTML = results.slice(0, 100).map((r, i) => `
+          <div class="search-result-item" data-index="${i}">
+            <div class="file-title">
+              <iconify-icon icon="mdi:file-document-outline"></iconify-icon>
+              ${r.fileTitle}
+            </div>
+            <div class="match-line">${r.line}</div>
+          </div>
+        `).join('');
+      }
+      searchResults.classList.add('active');
+
+      searchResults.querySelectorAll('.search-result-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index, 10);
+          const r = searchResultsData[idx];
+          if (!r) return;
+          const fileObj = mdIndex.find(m => m.id === r.fileId);
+          if (fileObj) {
+            openFile(fileObj.id, fileObj.file, fileObj.title);
+            searchResults.classList.remove('active');
+            globalSearchInput.value = '';
+          }
+        });
+      });
+    }
+
+    // ================= EVENT LISTENERS =================
+    backBtn.addEventListener('click', () => {
+      viewerPage.classList.add('hidden');
+      homePage.classList.remove('hidden');
+      currentFileId = null;
+      searchResults.classList.remove('active');
+      globalSearchInput.value = '';
+    });
+
+    searchBtn.addEventListener('click', () => {
+      performGlobalSearch(globalSearchInput.value);
+    });
+
+    globalSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performGlobalSearch(globalSearchInput.value);
+    });
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-section')) {
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // Recalculate open accordion heights on resize
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.accordion-header.open').forEach(header => {
+        const content = header.nextElementSibling;
+        if (content) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+    });
+
+    // ================= INIT =================
+    function init() {
+      initTheme();
+      loadIndex();
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
