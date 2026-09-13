@@ -31,15 +31,11 @@
   <link rel="icon" type="image/png" href="Ui/Logo.png">
   <link rel="apple-touch-icon" href="Ui/Logo.png">
 
-  <!-- ===== ICONIFY + MARKED ===== -->
-  <script>
-    window.Iconify = window.Iconify || {};
-    window.Iconify.config = window.Iconify.config || {};
-    window.Iconify.config.localStorageCache = true;
-    window.Iconify.config.defaultIcon = 'mdi:help-circle';
-  </script>
+  <!-- ===== LIBRARIES ===== -->
+  <!-- Iconify web component (بيستخدم localStorage cache داخليًا بشكل تلقائي) -->
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- ✅ marked: إصدار مثبّت لمنع breaking changes مفاجئة -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 
   <!-- ===== STYLES ===== -->
   <link rel="stylesheet" href="css/variables.css">
@@ -73,7 +69,6 @@
     <!-- ===== HOME PAGE ===== -->
     <main id="homePage">
 
-      <!-- SEARCH SECTION (glass style) -->
       <div class="search-section" id="searchSection">
         <div class="search-box" id="searchBox">
           <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
@@ -90,7 +85,6 @@
         <div class="search-results" id="searchResults"></div>
       </div>
 
-      <!-- UNITS TREE -->
       <section class="units-tree" id="unitsTree">
         <div class="skeleton-card"></div>
         <div class="skeleton-card"></div>
@@ -149,251 +143,7 @@
   <script src="js/storage.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/icons-cache.js"></script>
-  <script src="js/Uimd.js"></script>
-  <script src="js/search-index.js"></script>
-  <script src="js/search.js"></script>
-  <script src="js/ui-cards.js"></script>
-  <script src="js/app.js"></script>
-</body>
-</html>    window.Iconify.config = window.Iconify.config || {};
-    window.Iconify.config.localStorageCache = true;
-    window.Iconify.config.defaultIcon = 'mdi:help-circle';
-  </script>
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <!-- ===== STYLES ===== -->
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/viewer.css">
-  <link rel="stylesheet" href="css/responsive.css">
-</head>
-
-<body>
-  <div id="app">
-
-    <!-- ===== TOP BAR ===== -->
-    <header class="top-bar" id="topBar">
-      <div class="logo">
-        <img src="UI/Logo.png" alt="E.English" class="logo-img">
-        <span>E.English</span>
-      </div>
-      <div class="top-actions">
-        <button class="wake-toggle" id="wakeToggle" aria-label="Keep screen awake" title="إبقاء الشاشة مضيئة">
-          <iconify-icon id="wakeIcon" icon="mdi:lightbulb-off-outline"></iconify-icon>
-          <span id="wakeLabel">شاشة مضيئة</span>
-        </button>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
-          <iconify-icon id="themeIcon" icon="mdi:weather-sunny"></iconify-icon>
-          <span id="themeLabel">Light</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- ===== HOME PAGE ===== -->
-    <main id="homePage">
-
-      <!-- SEARCH SECTION (glass style) -->
-      <div class="search-section" id="searchSection">
-        <div class="search-box" id="searchBox">
-          <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
-          <input type="text" id="globalSearchInput"
-                 placeholder="ابحث عن كلمة، تعبير، أو مرادف..."
-                 autocomplete="off"
-                 spellcheck="false">
-          <button class="search-clear" id="searchClearBtn" aria-label="Clear" hidden>
-            <iconify-icon icon="mdi:close-circle"></iconify-icon>
-          </button>
-          <kbd class="search-kbd" id="searchKbd">Ctrl K</kbd>
-        </div>
-
-        <div class="search-results" id="searchResults"></div>
-      </div>
-
-      <!-- UNITS TREE -->
-      <section class="units-tree" id="unitsTree">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-      </section>
-    </main>
-
-    <!-- ===== VIEWER PAGE ===== -->
-    <main id="viewerPage" class="hidden">
-
-      <div class="viewer-header">
-        <button class="back-btn" id="backBtn" aria-label="Back to home">
-          <iconify-icon icon="mdi:arrow-left"></iconify-icon>
-          <span>رجوع</span>
-        </button>
-        <div class="file-title-view">
-          <iconify-icon icon="mdi:file-document-outline"></iconify-icon>
-          <span id="viewerTitleText"></span>
-        </div>
-        <button class="tool-btn danger" id="resetProgressBtn" aria-label="Reset progress">
-          <iconify-icon icon="mdi:delete-sweep-outline"></iconify-icon>
-          <span>مسح التقدم</span>
-        </button>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-info">
-          <span>
-            <iconify-icon icon="mdi:progress-check" style="vertical-align:middle;"></iconify-icon>
-            <span>التقدم</span>
-          </span>
-          <span><strong id="progressText">0 / 0</strong> <span>كلمة محفوظة</span></span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-      <div class="tools-bar">
-        <button class="tool-btn" id="expandAllBtn">
-          <iconify-icon icon="mdi:unfold-more-horizontal"></iconify-icon> افتح الكل
-        </button>
-        <button class="tool-btn" id="collapseAllBtn">
-          <iconify-icon icon="mdi:unfold-less-horizontal"></iconify-icon> اقفل الكل
-        </button>
-      </div>
-
-      <div class="markdown-body" id="markdownContent"></div>
-    </main>
-
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <!-- ===== SCRIPTS ===== -->
-  <script src="js/storage.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/icons-cache.js"></script>
-  <script src="js/Uimd.js"></script>
-  <script src="js/search-index.js"></script>
-  <script src="js/search.js"></script>
-  <script src="js/ui-cards.js"></script>
-  <script src="js/app.js"></script>
-</body>
-</html>  <!-- ===== ICONIFY + MARKED ===== -->
-  <script>
-    window.Iconify = window.Iconify || {};
-    window.Iconify.config = window.Iconify.config || {};
-    window.Iconify.config.localStorageCache = true;
-    window.Iconify.config.defaultIcon = 'mdi:help-circle';
-  </script>
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <!-- ===== STYLES ===== -->
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/viewer.css">
-  <link rel="stylesheet" href="css/responsive.css">
-</head>
-
-<body>
-  <div id="app">
-
-    <!-- ===== TOP BAR ===== -->
-    <header class="top-bar" id="topBar">
-      <div class="logo">
-        <img src="UI/Logo.png" alt="E.English" class="logo-img">
-        <span>E.English</span>
-      </div>
-      <div class="top-actions">
-        <button class="wake-toggle" id="wakeToggle" aria-label="Keep screen awake" title="إبقاء الشاشة مضيئة">
-          <iconify-icon id="wakeIcon" icon="mdi:lightbulb-off-outline"></iconify-icon>
-          <span id="wakeLabel">شاشة مضيئة</span>
-        </button>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
-          <iconify-icon id="themeIcon" icon="mdi:weather-sunny"></iconify-icon>
-          <span id="themeLabel">Light</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- ===== HOME PAGE ===== -->
-    <main id="homePage">
-
-      <!-- SEARCH SECTION (glass style) -->
-      <div class="search-section" id="searchSection">
-        <div class="search-box" id="searchBox">
-          <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
-          <input type="text" id="globalSearchInput"
-                 placeholder="ابحث عن كلمة، تعبير، أو مرادف..."
-                 autocomplete="off"
-                 spellcheck="false">
-          <button class="search-clear" id="searchClearBtn" aria-label="Clear" hidden>
-            <iconify-icon icon="mdi:close-circle"></iconify-icon>
-          </button>
-          <kbd class="search-kbd" id="searchKbd">Ctrl K</kbd>
-        </div>
-
-        <div class="search-results" id="searchResults"></div>
-      </div>
-
-      <!-- UNITS TREE -->
-      <section class="units-tree" id="unitsTree">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-      </section>
-    </main>
-
-    <!-- ===== VIEWER PAGE ===== -->
-    <main id="viewerPage" class="hidden">
-
-      <div class="viewer-header">
-        <button class="back-btn" id="backBtn" aria-label="Back to home">
-          <iconify-icon icon="mdi:arrow-left"></iconify-icon>
-          <span>رجوع</span>
-        </button>
-        <div class="file-title-view">
-          <iconify-icon icon="mdi:file-document-outline"></iconify-icon>
-          <span id="viewerTitleText"></span>
-        </div>
-        <button class="tool-btn danger" id="resetProgressBtn" aria-label="Reset progress">
-          <iconify-icon icon="mdi:delete-sweep-outline"></iconify-icon>
-          <span>مسح التقدم</span>
-        </button>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-info">
-          <span>
-            <iconify-icon icon="mdi:progress-check" style="vertical-align:middle;"></iconify-icon>
-            <span>التقدم</span>
-          </span>
-          <span><strong id="progressText">0 / 0</strong> <span>كلمة محفوظة</span></span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-      <div class="tools-bar">
-        <button class="tool-btn" id="expandAllBtn">
-          <iconify-icon icon="mdi:unfold-more-horizontal"></iconify-icon> افتح الكل
-        </button>
-        <button class="tool-btn" id="collapseAllBtn">
-          <iconify-icon icon="mdi:unfold-less-horizontal"></iconify-icon> اقفل الكل
-        </button>
-      </div>
-
-      <div class="markdown-body" id="markdownContent"></div>
-    </main>
-
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <!-- ===== SCRIPTS ===== -->
-  <script src="js/storage.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/icons-cache.js"></script>
+  <!-- ✅ اسم الملف الفعلي على القرص -->
   <script src="js/UImd.js"></script>
   <script src="js/search-index.js"></script>
   <script src="js/search.js"></script>
