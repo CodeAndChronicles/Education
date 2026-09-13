@@ -1,0 +1,65 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--font-size-md);
+  line-height: 1.55;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.hidden { display: none !important; }
+
+.skeleton-card {
+  height: 96px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg,
+    var(--surface) 25%,
+    var(--primary-soft) 50%,
+    var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.4s infinite;
+  border: 1px solid var(--border);
+}
+
+@keyframes skeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+/* focus outline for accessibility */
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--primary-soft);
+  outline-offset: 2px;
+}

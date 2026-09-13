@@ -1,0 +1,67 @@
+/* Big screens */
+@media (min-width: 1200px) {
+  #app { max-width: 1100px; }
+}
+
+/* Cards grid على الشاشات الكبيرة */
+@media (min-width: 900px) {
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-md);
+  }
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+  .card-progress { min-width: 100px; }
+}
+
+/* Small tablets / big phones */
+@media (max-width: 700px) {
+  .card-progress { width: 100%; min-width: 0; }
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  body { padding: var(--space-sm); }
+  .logo { font-size: var(--font-size-xl); }
+  .logo iconify-icon { font-size: 1.6rem; }
+
+  .search-box { padding: 4px 4px 4px var(--space-md); }
+  .search-box button { padding: var(--space-sm) var(--space-md); font-size: var(--font-size-xs); }
+
+  .card { padding: var(--space-md); gap: var(--space-sm); }
+  .card-icon { width: 44px; height: 44px; }
+  .card-icon iconify-icon { font-size: 1.5rem; }
+  .card-title { font-size: var(--font-size-md); }
+
+  .markdown-body { padding: var(--space-md) var(--space-sm); }
+
+  .icon-btn { padding: 5px var(--space-sm); }
+  .icon-btn iconify-icon { font-size: 1rem; }
+
+  .file-title-view { font-size: var(--font-size-md); width: 100%; }
+  .accordion-header { padding: var(--space-sm) var(--space-md); font-size: var(--font-size-sm); }
+  .accordion-header .group-counter { font-size: 0.7rem; }
+
+  .viewer-header { gap: var(--space-sm); }
+  .tool-btn { font-size: var(--font-size-xs); padding: 6px var(--space-sm); }
+
+  .word-list { padding: var(--space-sm); }
+  .word-card { padding: var(--space-sm); }
+  .word-en { font-size: var(--font-size-md); }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+  body { padding: 6px; }
+  .logo { font-size: 1.2rem; }
+  .logo iconify-icon { font-size: 1.3rem; }
+  .search-box input { font-size: var(--font-size-sm); }
+  .search-box > iconify-icon { font-size: 1.2rem; }
+  .search-box { padding: 3px 3px 3px var(--space-sm); }
+  .card-icon { display: none; }
+  .markdown-body { padding: var(--space-sm) 6px; }
+  .word-row-controls { gap: 6px; }
+}

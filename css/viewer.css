@@ -1,0 +1,371 @@
+/* ========== VIEWER HEADER ========== */
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.back-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-sm) var(--space-md);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  font-family: inherit;
+}
+.back-btn:hover { border-color: var(--primary); color: var(--primary); }
+.back-btn iconify-icon { font-size: 1.4rem; }
+
+.file-title-view {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  direction: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========== PROGRESS ========== */
+.progress-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow);
+}
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+.progress-info strong { color: var(--primary); }
+.progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: var(--accent-soft);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+
+/* ========== TOOLS BAR ========== */
+.tools-bar {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* ========== MARKDOWN ========== */
+.markdown-body {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: var(--space-lg) var(--space-md);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+  direction: auto;
+}
+.markdown-body h1,
+.markdown-body h2 {
+  color: var(--primary);
+  margin: var(--space-lg) 0 var(--space-sm);
+  font-size: var(--font-size-xl);
+  direction: auto;
+}
+.markdown-body p {
+  margin: var(--space-sm) 0;
+  direction: auto;
+}
+
+/* ========== TABLES (fallback) ========== */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-sm) 0;
+  font-size: var(--font-size-sm);
+}
+.markdown-body th {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 700;
+  padding: var(--space-sm);
+  text-align: start;
+  border-bottom: 2px solid var(--primary);
+  direction: auto;
+}
+.markdown-body td {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  text-align: start;
+  direction: auto;
+}
+.markdown-body tr:last-child td { border-bottom: none; }
+
+/* ========== ACCORDION GRID ========== */
+.accordion-groups-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+@media (min-width: 1100px) {
+  .accordion-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+    gap: var(--space-md);
+  }
+}
+
+/* ========== ACCORDION ========== */
+.accordion-group {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+.accordion-header {
+  background: var(--primary-soft);
+  padding: var(--space-md);
+  font-weight: 700;
+  font-size: var(--font-size-md);
+  color: var(--primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+  font-family: inherit;
+  gap: var(--space-sm);
+  direction: auto;
+}
+.accordion-header:hover {
+  background: var(--primary);
+  color: white;
+}
+.accordion-header .accordion-meta-left {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0;
+}
+.accordion-header .accordion-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+.accordion-header .group-counter {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--primary);
+  padding: 3px var(--space-sm);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+}
+.accordion-header iconify-icon {
+  font-size: 1.5rem;
+  transition: transform 0.25s ease;
+}
+.accordion-header.open iconify-icon { transform: rotate(180deg); }
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-slow);
+  background: var(--surface);
+}
+.accordion-content.open { overflow-y: auto; }
+
+/* ========== WORD LIST (Cards) ========== */
+.word-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.word-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  transition: var(--transition);
+}
+.word-card:hover { border-color: var(--primary); }
+.word-card.word-card-saved {
+  border-color: var(--success);
+  background: var(--primary-soft);
+}
+
+.word-status {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.word-main { flex: 1; min-width: 0; }
+.word-en {
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  color: var(--text);
+  direction: ltr;
+  text-align: left;
+  word-break: break-word;
+}
+.word-ar {
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+  margin-top: 2px;
+}
+.word-example {
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  border-inline-start: 3px solid var(--primary-soft);
+  padding-inline-start: var(--space-sm);
+  direction: ltr;
+  text-align: left;
+}
+
+.word-controls-slot { flex-shrink: 0; align-self: center; }
+
+/* Grid للكلمات على الشاشات الكبيرة */
+@media (min-width: 900px) {
+  .word-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm) var(--space-md);
+  }
+}
+@media (min-width: 1300px) {
+  .word-list { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ========== WORD CONTROLS ========== */
+.word-row-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Custom Checkbox */
+.check-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  min-width: 24px;
+  min-height: 24px;
+}
+.check-label input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  width: 24px;
+  height: 24px;
+}
+.custom-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  background: var(--check-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.custom-check iconify-icon {
+  font-size: 1rem;
+  color: white;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.check-label input:checked + .custom-check {
+  background: var(--check-active);
+  border-color: var(--check-active);
+}
+.check-label input:checked + .custom-check iconify-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+.check-label input:indeterminate + .custom-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.check-label input:indeterminate + .custom-check iconify-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+.check-label:hover .custom-check { border-color: var(--primary); }
+
+/* Copy button */
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  line-height: 1;
+  font-family: inherit;
+}
+.icon-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.icon-btn iconify-icon { font-size: 1.2rem; }
+
+/* Row saved pulse */
+tr.row-saved,
+.word-card.row-saved { animation: pop 0.35s ease; }
+
+/* group checkbox in header */
+.group-check-label { flex-shrink: 0; }

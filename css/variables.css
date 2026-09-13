@@ -1,0 +1,98 @@
+/* ========== FONT ========== */
+@font-face {
+  font-family: 'AppFont';
+  src: url('../UI/Font.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* ============================================================
+   LIGHT THEME
+   ============================================================ */
+:root {
+  /* Typography */
+  --font-main: 'AppFont', 'Segoe UI', 'Inter', system-ui, -apple-system, 'Tahoma', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.15rem;
+  --font-size-xl: 1.4rem;
+  --font-size-2xl: 1.8rem;
+
+  /* محايد (مش أخضر) — خلفيات وحدود */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f0;
+  --text: #1b2320;
+  --text-secondary: #59665f;
+  --border: #dfe4e2;
+
+  /* الهوية الأساسية */
+  --primary: #1f6f54;
+  --primary-light: #2f9469;
+  --primary-soft: #e3f2ec;
+
+  /* Accent مستقل */
+  --accent: #c98a2c;
+  --accent-soft: #fbeedd;
+
+  /* حالات دلالية */
+  --success: #2f9469;
+  --warning: #d97706;
+  --danger: #b3261e;
+  --info: #2563eb;
+
+  --shadow: 0 8px 20px rgba(15, 30, 25, 0.07);
+  --shadow-lg: 0 14px 30px rgba(15, 30, 25, 0.14);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Radius */
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-pill: 40px;
+
+  /* Transitions */
+  --transition: 0.2s ease;
+  --transition-slow: 0.35s ease-out;
+
+  /* Checkbox accent */
+  --check-bg: #ffffff;
+  --check-border: #94b8a9;
+  --check-active: var(--primary);
+}
+
+/* ============================================================
+   DARK THEME
+   ============================================================ */
+.dark {
+  --bg: #10151a;
+  --surface: #1b2229;
+  --surface-2: #141a1f;
+  --text: #e7ecea;
+  --text-secondary: #9fb0aa;
+  --border: #2a3339;
+
+  --primary: #4caf8a;
+  --primary-light: #2f7d61;
+  --primary-soft: #1d3129;
+
+  --accent: #e0a94a;
+  --accent-soft: #3a2d16;
+
+  --success: #4caf8a;
+  --warning: #f0a94a;
+  --danger: #e5615a;
+  --info: #6ea8fe;
+
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 14px 30px rgba(0, 0, 0, 0.5);
+
+  --check-bg: #1b2229;
+  --check-border: #3d6b5b;
+  --check-active: var(--primary);
+}
