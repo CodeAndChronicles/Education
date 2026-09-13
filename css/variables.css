@@ -3,7 +3,7 @@
    ============================================================ */
 @font-face {
   font-family: 'AppFont';
-  src: url('../UI/Font.ttf') format('truetype');
+  src: url('../Ui/Font.ttf') format('truetype');
   font-display: swap;
 }
 
