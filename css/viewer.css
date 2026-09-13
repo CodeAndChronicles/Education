@@ -34,7 +34,6 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  direction: auto;
   flex: 1;
   min-width: 0;
 }
@@ -91,18 +90,15 @@
   padding: var(--space-lg) var(--space-md);
   box-shadow: var(--shadow);
   overflow-x: auto;
-  direction: auto;
 }
 .markdown-body h1,
 .markdown-body h2 {
   color: var(--primary);
   margin: var(--space-lg) 0 var(--space-sm);
   font-size: var(--font-size-xl);
-  direction: auto;
 }
 .markdown-body p {
   margin: var(--space-sm) 0;
-  direction: auto;
 }
 
 /* ========== TABLES (fallback) ========== */
@@ -119,14 +115,12 @@
   padding: var(--space-sm);
   text-align: start;
   border-bottom: 2px solid var(--primary);
-  direction: auto;
 }
 .markdown-body td {
   padding: var(--space-sm);
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   text-align: start;
-  direction: auto;
 }
 .markdown-body tr:last-child td { border-bottom: none; }
 
@@ -136,7 +130,7 @@
   flex-direction: column;
   gap: var(--space-md);
 }
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .accordion-groups-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -167,7 +161,6 @@
   user-select: none;
   font-family: inherit;
   gap: var(--space-sm);
-  direction: auto;
 }
 .accordion-header:hover {
   background: var(--primary);
@@ -209,7 +202,7 @@
 }
 .accordion-content.open { overflow-y: auto; }
 
-/* ========== WORD LIST (Cards) ========== */
+/* ========== WORD LIST ========== */
 .word-list {
   display: flex;
   flex-direction: column;
@@ -217,6 +210,33 @@
   padding: var(--space-sm) var(--space-md);
 }
 
+/* المرحلة 1: مجموعات عمود واحد → الكلمات تاخد عمودين */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .word-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm) var(--space-md);
+  }
+}
+
+/* المرحلة 2: مجموعات عمودين → الكلمات عمود واحد */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .word-list {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* المرحلة 3: شاشة عريضة جدًا → الكلمات عمودين تاني */
+@media (min-width: 1600px) {
+  .word-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm) var(--space-md);
+  }
+}
+
+/* ========== WORD CARD ========== */
 .word-card {
   position: relative;
   display: flex;
@@ -267,18 +287,6 @@
 }
 
 .word-controls-slot { flex-shrink: 0; align-self: center; }
-
-/* Grid للكلمات على الشاشات الكبيرة */
-@media (min-width: 900px) {
-  .word-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-sm) var(--space-md);
-  }
-}
-@media (min-width: 1300px) {
-  .word-list { grid-template-columns: repeat(3, 1fr); }
-}
 
 /* ========== WORD CONTROLS ========== */
 .word-row-controls {
@@ -364,7 +372,6 @@
 .icon-btn iconify-icon { font-size: 1.2rem; }
 
 /* Row saved pulse */
-tr.row-saved,
 .word-card.row-saved { animation: pop 0.35s ease; }
 
 /* group checkbox in header */
