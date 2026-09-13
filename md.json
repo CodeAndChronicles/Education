@@ -1,8 +1,302 @@
 [
   {
-    "id": "unit2",
-    "title": "Unit 2 - Vocabulary",
-    "file": "Files/vocab_unit2.md",
-    "date": "2026-09-13"
+    "unit": 1,
+    "groups": [
+      {
+        "id": "U01-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U01-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U01-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U01-L12-Idioms.md",
+          "derivatives":       "Files/U01-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U01-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U01-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U01-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U01-L34-Idioms.md",
+          "derivatives":       "Files/U01-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 2,
+    "groups": [
+      {
+        "id": "U02-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U02-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U02-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U02-L12-Idioms.md",
+          "derivatives":       "Files/U02-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U02-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/Vocab_unit2.md",
+          "synonyms_antonyms": "Files/U02-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U02-L34-Idioms.md",
+          "derivatives":       "Files/U02-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 3,
+    "groups": [
+      {
+        "id": "U03-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U03-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U03-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U03-L12-Idioms.md",
+          "derivatives":       "Files/U03-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U03-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U03-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U03-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U03-L34-Idioms.md",
+          "derivatives":       "Files/U03-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 4,
+    "groups": [
+      {
+        "id": "U04-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U04-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U04-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U04-L12-Idioms.md",
+          "derivatives":       "Files/U04-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U04-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U04-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U04-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U04-L34-Idioms.md",
+          "derivatives":       "Files/U04-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 5,
+    "groups": [
+      {
+        "id": "U05-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U05-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U05-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U05-L12-Idioms.md",
+          "derivatives":       "Files/U05-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U05-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U05-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U05-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U05-L34-Idioms.md",
+          "derivatives":       "Files/U05-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 6,
+    "groups": [
+      {
+        "id": "U06-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U06-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U06-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U06-L12-Idioms.md",
+          "derivatives":       "Files/U06-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U06-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U06-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U06-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U06-L34-Idioms.md",
+          "derivatives":       "Files/U06-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 7,
+    "groups": [
+      {
+        "id": "U07-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U07-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U07-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U07-L12-Idioms.md",
+          "derivatives":       "Files/U07-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U07-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U07-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U07-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U07-L34-Idioms.md",
+          "derivatives":       "Files/U07-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 8,
+    "groups": [
+      {
+        "id": "U08-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U08-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U08-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U08-L12-Idioms.md",
+          "derivatives":       "Files/U08-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U08-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U08-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U08-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U08-L34-Idioms.md",
+          "derivatives":       "Files/U08-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 9,
+    "groups": [
+      {
+        "id": "U09-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U09-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U09-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U09-L12-Idioms.md",
+          "derivatives":       "Files/U09-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U09-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U09-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U09-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U09-L34-Idioms.md",
+          "derivatives":       "Files/U09-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 10,
+    "groups": [
+      {
+        "id": "U10-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U10-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U10-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U10-L12-Idioms.md",
+          "derivatives":       "Files/U10-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U10-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U10-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U10-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U10-L34-Idioms.md",
+          "derivatives":       "Files/U10-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 11,
+    "groups": [
+      {
+        "id": "U11-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U11-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U11-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U11-L12-Idioms.md",
+          "derivatives":       "Files/U11-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U11-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U11-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U11-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U11-L34-Idioms.md",
+          "derivatives":       "Files/U11-L34-Derivatives.md"
+        }
+      }
+    ]
+  },
+  {
+    "unit": 12,
+    "groups": [
+      {
+        "id": "U12-L12",
+        "label": "Lessons 1 & 2",
+        "sections": {
+          "vocabulary":        "Files/U12-L12-Vocabulary.md",
+          "synonyms_antonyms": "Files/U12-L12-Synonyms-Antonyms.md",
+          "idioms":            "Files/U12-L12-Idioms.md",
+          "derivatives":       "Files/U12-L12-Derivatives.md"
+        }
+      },
+      {
+        "id": "U12-L34",
+        "label": "Lessons 3 & 4",
+        "sections": {
+          "vocabulary":        "Files/U12-L34-Vocabulary.md",
+          "synonyms_antonyms": "Files/U12-L34-Synonyms-Antonyms.md",
+          "idioms":            "Files/U12-L34-Idioms.md",
+          "derivatives":       "Files/U12-L34-Derivatives.md"
+        }
+      }
+    ]
   }
 ]
