@@ -3,16 +3,21 @@
    - يحمّل كل ملفات md مرة واحدة
    - يستخرج كل صف/عنصر مع بياناته
    - يخزن الفهرس في الذاكرة + IndexedDB
+   - ✅ Cache Busting عبر CONTENT_VERSION
    ========================================================= */
 window.SearchIndex = (function () {
 
   const DB_NAME = 'ee_search_db';
   const DB_VERSION = 1;
   const STORE_NAME = 'index';
-  const INDEX_KEY = 'full_index_v1';
 
-  let memoryIndex = null;     // الفهرس في الذاكرة
-  let buildPromise = null;    // لمنع بناء مكرر متزامن
+  /* ✅ زوّد الرقم ده يدويًا مع كل تحديث لملفات Files/*.md
+        ده بيجبر كل المستخدمين يعيدوا بناء فهرس البحث تلقائيًا */
+  const CONTENT_VERSION = 2;
+  const INDEX_KEY = `full_index_v${CONTENT_VERSION}`;
+
+  let memoryIndex = null;
+  let buildPromise = null;
   let dbPromise = null;
 
   /* ---------- IndexedDB helpers ---------- */
@@ -84,8 +89,6 @@ window.SearchIndex = (function () {
   function extractEntries(mdText, filePath, unit, group, section) {
     const entries = [];
 
-    // نستخدم marked + نفس منطق Uimd لتحويل المحتوى
-    // لكن بدون ما نحتاج Uimd نفسه (نحتاج استقلالية)
     let html;
     try {
       html = marked.parse(mdText);
@@ -96,16 +99,13 @@ window.SearchIndex = (function () {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
 
-    // استخرج كل جدول
     const tables = tempDiv.querySelectorAll('table');
     tables.forEach((table, tableIdx) => {
-      // اسم الجدول = آخر H3 قبل الجدول (لو موجود)
       const rows = table.querySelectorAll('tbody tr');
       rows.forEach((row, rowIdx) => {
         const cells = Array.from(row.querySelectorAll('td'));
         if (cells.length < 2) return;
 
-        // تحديد الأعمدة (نفس منطق Uimd)
         let idx = 0;
         let statusText = '';
         if (cells.length >= 3) {
@@ -155,7 +155,6 @@ window.SearchIndex = (function () {
       let processed = 0;
       let total = 0;
 
-      // عدّ الملفات الكلي
       mdIndex.forEach(unit => {
         (unit.groups || []).forEach(group => {
           SECTION_ORDER.forEach(key => {
@@ -164,7 +163,6 @@ window.SearchIndex = (function () {
         });
       });
 
-      // حمّل كل الملفات بالتوازي (دفعات 6)
       const tasks = [];
       mdIndex.forEach(unit => {
         (unit.groups || []).forEach(group => {
@@ -209,10 +207,10 @@ window.SearchIndex = (function () {
         entries,
         builtAt: Date.now(),
         totalFiles: total,
-        totalEntries: entries.length
+        totalEntries: entries.length,
+        version: CONTENT_VERSION
       };
 
-      // خزنه في IndexedDB
       await dbSet(INDEX_KEY, memoryIndex);
 
       return memoryIndex;
@@ -290,7 +288,8 @@ window.SearchIndex = (function () {
     return {
       totalEntries: memoryIndex.totalEntries,
       totalFiles: memoryIndex.totalFiles,
-      builtAt: memoryIndex.builtAt
+      builtAt: memoryIndex.builtAt,
+      version: memoryIndex.version
     };
   }
 

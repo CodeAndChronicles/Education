@@ -113,11 +113,12 @@
       clearTimeout(retryTimer);
     }
 
+    /* ✅ تم إصلاح النص ليعكس الحالة الفعلية */
     function updateUI() {
       if (enabled) {
         wakeToggle.classList.add('active');
         wakeIcon.setAttribute('icon', 'mdi:lightbulb-on-outline');
-        wakeLabel.textContent = 'شاشة مضيئة';
+        wakeLabel.textContent = 'الشاشة مضيئة الآن';
       } else {
         wakeToggle.classList.remove('active');
         wakeIcon.setAttribute('icon', 'mdi:lightbulb-off-outline');
@@ -303,12 +304,10 @@
     const cards = markdownContent.querySelectorAll('.word-card[data-word-id]');
     let found = null;
 
-    // 1) جرّب تطابق مباشر على data-word-text
     for (const card of cards) {
       const wt = (card.dataset.wordText || '').toLowerCase().trim();
       if (wt === target) { found = card; break; }
     }
-    // 2) تطابق جزئي
     if (!found) {
       for (const card of cards) {
         const wt = (card.dataset.wordText || '').toLowerCase();
@@ -318,27 +317,22 @@
 
     if (!found) return;
 
-    // افتح الأكورديونات الأب
     let parent = found.parentElement;
     while (parent && parent !== markdownContent) {
       if (parent.classList && parent.classList.contains('accordion-content')) {
-        // افتح
         parent.classList.add('open');
         const header = parent.previousElementSibling;
         if (header && header.classList) header.classList.add('open');
-        // ارتفاع
         parent.style.maxHeight = 'none';
       }
       parent = parent.parentElement;
     }
 
-    // ظلّل الكارت
     found.classList.add('search-highlight');
     setTimeout(() => {
       found.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 80);
 
-    // شيل التظليل بعد شوية
     setTimeout(() => {
       found.classList.remove('search-highlight');
     }, 4500);
@@ -379,7 +373,6 @@
       updateGroupCounters(currentSectionId);
       updateOverallProgress(currentSectionId);
 
-      // لو جاي من البحث، ظلّل الكلمة المطلوبة
       if (searchInfo) {
         setTimeout(() => highlightMatchInViewer(searchInfo), 120);
       }
@@ -487,14 +480,12 @@
       if (!res.ok) throw new Error('Failed to load md.json');
       mdIndex = await res.json();
 
-      // سجّل الـ mdIndex للبحث
       Search.setMdIndex(mdIndex);
       Search.setOpenHandler((path, title, info) => openSection(path, title, info));
 
-      // ابنِ الشجرة
       await UiCards.renderTree(mdIndex, (path, title) => openSection(path, title));
 
-      // ابدأ ببناء فهرس البحث في الخلفية (بدون ما يعطّل الواجهة)
+      // ابدأ ببناء فهرس البحث في الخلفية
       setTimeout(() => {
         SearchIndex.getIndex(mdIndex).catch(e => console.warn('Index build failed', e));
       }, 800);

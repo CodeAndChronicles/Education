@@ -1,8 +1,9 @@
 /* =========================================================
    ui-cards.js — Unit cards كبيرة مريحة (V1 style)
-   - كل كارت فيه: badge رقم الوحدة + عنوان + subtitle + counter
+   - كل كارت: badge رقم الوحدة + عنوان + subtitle + counter
    - progress bar تحت كل كارت
    - sections مع اسم الملف
+   - ✅ try/catch حول Uimd.getRendered لمنع سقوط كل العدادات
    ========================================================= */
 window.UiCards = (function () {
 
@@ -38,19 +39,28 @@ window.UiCards = (function () {
     return dot > 0 ? name.slice(dot) : '';
   }
 
+  /* ---------- ✅ getSectionCount مع try/catch ---------- */
   async function getSectionCount(filePath) {
     if (wordCountCache.has(filePath)) return wordCountCache.get(filePath);
+
     const text = await Search.loadFileText(filePath);
     if (!text) {
       wordCountCache.set(filePath, null);
       return null;
     }
-    const wrapper = Uimd.getRendered(filePath, text);
-    const cards = wrapper.querySelectorAll('.word-list .word-card').length;
-    const tableRows = wrapper.querySelectorAll('.accordion-content table tbody tr').length;
-    const total = cards > 0 ? cards : tableRows;
-    wordCountCache.set(filePath, total);
-    return total;
+
+    try {
+      const wrapper = Uimd.getRendered(filePath, text);
+      const cards = wrapper.querySelectorAll('.word-list .word-card').length;
+      const tableRows = wrapper.querySelectorAll('.accordion-content table tbody tr').length;
+      const total = cards > 0 ? cards : tableRows;
+      wordCountCache.set(filePath, total);
+      return total;
+    } catch (e) {
+      console.error('[UiCards] getSectionCount failed for', filePath, e);
+      wordCountCache.set(filePath, null);
+      return null;
+    }
   }
 
   /* ---------- render tree ---------- */
@@ -71,7 +81,6 @@ window.UiCards = (function () {
           const icon = SECTION_ICONS[key] || 'mdi:file-document-outline';
           const sectionId = `${group.id}-${key}`;
           const fileName = basename(path);
-          const ext = fileExt(path);
 
           return `
             <div class="section-row"
@@ -290,7 +299,6 @@ window.UiCards = (function () {
           : `${filesCount} أقسام · ${totalItems} عنصر`;
       }
 
-      // شارة إكمال
       block.classList.toggle('unit-complete', pct >= 100 && totalItems > 0);
     });
   }
