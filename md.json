@@ -41,9 +41,9 @@
         "id": "U02-L34",
         "label": "Lessons 3 & 4",
         "sections": {
-          "vocabulary":        "Files/vocab_unit2.md",
-          "synonyms_antonyms": "Files/U02-L34-Synonyms-Antonyms.md",
-          "idioms":            "Files/U02-L34-Idioms.md",
+          "vocabulary":        "Files/VocabularyU2L34.md",
+          "synonyms_antonyms": "Files/Synonyms_antonymsU2L34.md",
+          "idioms":            "Files/IdiomsU2L34.md",
           "derivatives":       "Files/U02-L34-Derivatives.md"
         }
       }
