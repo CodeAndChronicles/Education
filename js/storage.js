@@ -1,15 +1,12 @@
 /* =========================================================
    storage.js — كل التعامل مع localStorage
-   شكل التخزين:
-     ee_progress_<fileId> = JSON { [wordId]: true }
-     ee_theme = 'dark' | 'light'
    ========================================================= */
 window.Storage = (function () {
   const PROGRESS_PREFIX = 'ee_progress_';
   const THEME_KEY = 'ee_theme';
+  const LAST_UNIT_KEY = 'ee_last_unit';
 
-  // in-memory cache عشان نقلل قراءات localStorage
-  const progressCache = new Map(); // fileId -> object
+  const progressCache = new Map();
 
   function readProgress(fileId) {
     if (progressCache.has(fileId)) return progressCache.get(fileId);
@@ -62,12 +59,24 @@ window.Storage = (function () {
     localStorage.setItem(THEME_KEY, t);
   }
 
+  /* ✅ آخر وحدة تم فتحها */
+  function getLastUnit() {
+    const v = localStorage.getItem(LAST_UNIT_KEY);
+    return v ? parseInt(v, 10) : null;
+  }
+  function setLastUnit(unit) {
+    try { localStorage.setItem(LAST_UNIT_KEY, String(unit)); }
+    catch (e) { /* ignore */ }
+  }
+
   return {
     isWordSaved,
     setWordSaved,
     getFileStats,
     resetFile,
     getTheme,
-    setTheme
+    setTheme,
+    getLastUnit,
+    setLastUnit
   };
 })();

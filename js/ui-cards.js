@@ -1,45 +1,43 @@
 /* =========================================================
-   ui-cards.js — Unit cards كبيرة مريحة (V1 style)
-   - كل كارت: badge رقم الوحدة + عنوان + subtitle + counter
-   - progress bar تحت كل كارت
-   - sections مع اسم الملف
-   - ✅ try/catch حول Uimd.getRendered لمنع سقوط كل العدادات
+   ui-cards.js — نظام Cards Grid + Drill-down
+   - renderUnitsGrid: شبكة الوحدات (Home)
+   - renderGroupsGrid: شبكة المجموعات (Unit Page)
+   - renderSectionsGrid: شبكة الأقسام (Group Page)
+   - renderOverview: إحصائيات المنهج الكامل
    ========================================================= */
 window.UiCards = (function () {
 
-  const treeEl = document.getElementById('unitsTree');
+  const unitsGridEl    = document.getElementById('unitsGrid');
+  const groupsGridEl   = document.getElementById('groupsGrid');
+  const sectionsGridEl = document.getElementById('sectionsGrid');
+  const overviewEl     = document.getElementById('curriculumOverview');
 
-  const SECTION_LABELS = {
-    vocabulary:        'Vocabulary',
-    synonyms_antonyms: 'Synonyms & Antonyms',
-    idioms:            'Idioms',
-    derivatives:       'Derivatives'
+  const SECTION_META = {
+    vocabulary:        { label: 'Vocabulary',          icon: 'mdi:book-alphabet',   color: 'var(--primary)' },
+    synonyms_antonyms: { label: 'Synonyms & Antonyms',  icon: 'mdi:swap-horizontal', color: 'var(--info)' },
+    idioms:            { label: 'Idioms',               icon: 'mdi:chat-outline',    color: 'var(--accent)' },
+    derivatives:       { label: 'Derivatives',          icon: 'mdi:family-tree',     color: 'var(--warning)' }
   };
-
-  const SECTION_ICONS = {
-    vocabulary:        'mdi:book-alphabet',
-    synonyms_antonyms: 'mdi:swap-horizontal',
-    idioms:            'mdi:chat-outline',
-    derivatives:       'mdi:family-tree'
-  };
-
   const SECTION_ORDER = ['vocabulary', 'synonyms_antonyms', 'idioms', 'derivatives'];
+
+  const state = {
+    mdIndex: [],
+    currentUnit: null,
+    currentGroup: null
+  };
 
   const wordCountCache = new Map();
 
   /* ---------- helpers ---------- */
-  function basename(path) {
-    if (!path) return '';
-    return path.split('/').pop();
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
-  function fileExt(path) {
-    const name = basename(path);
-    const dot = name.lastIndexOf('.');
-    return dot > 0 ? name.slice(dot) : '';
-  }
-
-  /* ---------- ✅ getSectionCount مع try/catch ---------- */
   async function getSectionCount(filePath) {
     if (wordCountCache.has(filePath)) return wordCountCache.get(filePath);
 
@@ -48,7 +46,6 @@ window.UiCards = (function () {
       wordCountCache.set(filePath, null);
       return null;
     }
-
     try {
       const wrapper = Uimd.getRendered(filePath, text);
       const cards = wrapper.querySelectorAll('.word-list .word-card').length;
@@ -63,250 +60,404 @@ window.UiCards = (function () {
     }
   }
 
-  /* ---------- render tree ---------- */
-  async function renderTree(mdIndex, onOpenSection) {
-    treeEl.innerHTML = '';
-
-    if (!mdIndex || !mdIndex.length) {
-      treeEl.innerHTML = `<div class="loading">لا توجد وحدات بعد.</div>`;
-      return;
-    }
-
-    const unitsHtml = mdIndex.map((unit, uIdx) => {
-      const groupsHtml = (unit.groups || []).map(group => {
-        const sectionsHtml = SECTION_ORDER.map(key => {
-          const path = group.sections ? group.sections[key] : null;
-          if (!path) return '';
-          const label = SECTION_LABELS[key] || key;
-          const icon = SECTION_ICONS[key] || 'mdi:file-document-outline';
-          const sectionId = `${group.id}-${key}`;
-          const fileName = basename(path);
-
-          return `
-            <div class="section-row"
-                 data-section-id="${sectionId}"
-                 data-section-path="${path}"
-                 data-section-key="${key}"
-                 data-section-label="${label}"
-                 data-group-id="${group.id}"
-                 data-unit="${unit.unit}"
-                 tabindex="0"
-                 role="button">
-              <div class="section-icon">
-                <iconify-icon icon="${icon}"></iconify-icon>
-              </div>
-              <div class="section-info">
-                <div class="section-title">${label}</div>
-                <div class="section-meta">
-                  <span data-section-count><iconify-icon icon="mdi:format-list-numbered"></iconify-icon> ...</span>
-                </div>
-                <div class="section-filename">${fileName}</div>
-              </div>
-              <div class="section-status" data-section-status></div>
-              <div class="section-arrow">
-                <iconify-icon icon="mdi:chevron-right"></iconify-icon>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        const groupItemCount = SECTION_ORDER
-          .filter(k => group.sections && group.sections[k])
-          .length;
-
-        return `
-          <div class="group-block" data-group-id="${group.id}">
-            <div class="group-header" role="button" tabindex="0">
-              <span class="group-label">
-                <iconify-icon icon="mdi:book-open-variant"></iconify-icon>
-                ${group.label}
-              </span>
-              <span class="group-meta">
-                <span class="group-counter-mini">${groupItemCount} أقسام</span>
-                <iconify-icon class="group-chevron" icon="mdi:chevron-down"></iconify-icon>
-              </span>
-            </div>
-            <div class="group-content">
-              ${sectionsHtml || '<div class="section-empty">Content coming soon</div>'}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      return `
-        <div class="unit-block" data-unit="${unit.unit}" style="animation-delay:${uIdx * 25}ms">
-          <div class="unit-header" role="button" tabindex="0">
-            <div class="unit-main">
-              <div class="unit-badge">${unit.unit}</div>
-              <div class="unit-text">
-                <div class="unit-label">Unit ${unit.unit}</div>
-                <div class="unit-subtitle" data-unit-subtitle>جاري التحميل...</div>
-              </div>
-            </div>
-            <div class="unit-meta">
-              <span class="unit-counter" data-unit-counter>
-                <iconify-icon icon="mdi:format-list-numbered"></iconify-icon>
-                <span data-unit-counter-text>—</span>
-              </span>
-              <iconify-icon class="unit-chevron" icon="mdi:chevron-down"></iconify-icon>
-            </div>
-          </div>
-          <div class="unit-progress-wrap">
-            <div class="unit-progress-track">
-              <div class="unit-progress-fill" data-unit-fill></div>
-            </div>
-            <div class="unit-progress-label">
-              <span data-unit-saved>0 عنصر محفوظ</span>
-              <span data-unit-pct>0%</span>
-            </div>
-          </div>
-          <div class="unit-content">
-            ${groupsHtml}
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    treeEl.innerHTML = unitsHtml;
-
-    bindTreeEvents(onOpenSection);
-    loadAllSectionCounts(mdIndex);
+  async function getSectionSaved(filePath, total) {
+    if (total === null || total === 0) return 0;
+    return Storage.getFileStats(filePath).saved;
   }
 
-  /* ---------- events ---------- */
-  function bindTreeEvents(onOpenSection) {
-    treeEl.querySelectorAll('.unit-header').forEach(h => {
-      const toggle = () => {
-        const content = h.parentElement.querySelector('.unit-content');
-        const open = h.classList.toggle('open');
-        content.classList.toggle('open', open);
-      };
-      h.addEventListener('click', toggle);
-      h.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-      });
-    });
+  /* ============================================================
+     OVERVIEW — إحصائيات المنهج الكامل
+     ============================================================ */
+  async function renderOverview(mdIndex) {
+    if (!overviewEl) return;
 
-    treeEl.querySelectorAll('.group-header').forEach(h => {
-      const toggle = () => {
-        const content = h.nextElementSibling;
-        const open = h.classList.toggle('open');
-        content.classList.toggle('open', open);
-      };
-      h.addEventListener('click', toggle);
-      h.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-      });
-    });
+    // اجمع إحصائيات كل الأقسام
+    let totalAll = 0;
+    let savedAll = 0;
 
-    treeEl.querySelectorAll('.section-row').forEach(row => {
-      const open = () => {
-        const path = row.dataset.sectionPath;
-        const label = row.dataset.sectionLabel;
-        const unit = row.dataset.unit;
-        const groupId = row.dataset.groupId;
-        const title = `Unit ${unit} · ${groupId} · ${label}`;
-        onOpenSection(path, title);
-      };
-      row.addEventListener('click', open);
-      row.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-      });
-    });
-  }
-
-  /* ---------- counters ---------- */
-  async function loadAllSectionCounts(mdIndex) {
     const tasks = [];
     mdIndex.forEach(unit => {
       (unit.groups || []).forEach(group => {
         SECTION_ORDER.forEach(key => {
           const path = group.sections ? group.sections[key] : null;
           if (!path) return;
-          tasks.push(updateSectionCount(path));
+          tasks.push((async () => {
+            const total = await getSectionCount(path);
+            if (total === null) return;
+            const saved = Storage.getFileStats(path).saved;
+            totalAll += total;
+            savedAll += saved;
+          })());
         });
       });
     });
     await Promise.all(tasks);
-    updateAllUnitProgress(mdIndex);
+
+    const pct = totalAll > 0 ? Math.round((savedAll / totalAll) * 100) : 0;
+
+    // آخر وحدة
+    const lastUnit = Storage.getLastUnit();
+
+    // عدد الوحدات الكلي
+    const totalUnits = mdIndex.length;
+
+    overviewEl.innerHTML = `
+      <div class="overview-card" dir="auto">
+        <div class="overview-stat">
+          <span class="overview-stat-value">${totalAll}</span>
+          <span class="overview-stat-label">إجمالي العناصر</span>
+        </div>
+        <div class="overview-stat">
+          <span class="overview-stat-value">${savedAll}</span>
+          <span class="overview-stat-label">تم حفظها</span>
+        </div>
+        <div class="overview-ring">
+          <svg viewBox="0 0 80 80" class="ring-svg">
+            <circle cx="40" cy="40" r="34" class="ring-bg"/>
+            <circle cx="40" cy="40" r="34" class="ring-fill"
+                    stroke-dasharray="${2 * Math.PI * 34}"
+                    stroke-dashoffset="${2 * Math.PI * 34 * (1 - pct / 100)}"/>
+          </svg>
+          <div class="ring-text">${pct}%</div>
+        </div>
+        <div class="overview-stat">
+          <span class="overview-stat-value">${lastUnit ? 'Unit ' + lastUnit : '—'}</span>
+          <span class="overview-stat-label">آخر وحدة</span>
+        </div>
+        <div class="overview-stat">
+          <span class="overview-stat-value">${totalUnits}</span>
+          <span class="overview-stat-label">عدد الوحدات</span>
+        </div>
+      </div>
+    `;
   }
 
-  async function updateSectionCount(path) {
-    const row = treeEl.querySelector(`.section-row[data-section-path="${path}"]`);
-    if (!row) return;
+  /* ============================================================
+     UNITS GRID (Home)
+     ============================================================ */
+  async function renderUnitsGrid(mdIndex) {
+    state.mdIndex = mdIndex;
+    unitsGridEl.innerHTML = '';
 
-    const countEl = row.querySelector('[data-section-count]');
-    const statusEl = row.querySelector('[data-section-status]');
-    const total = await getSectionCount(path);
-
-    if (total === null) {
-      row.classList.add('section-missing');
-      if (countEl) countEl.innerHTML = `<iconify-icon icon="mdi:clock-outline"></iconify-icon> قريبًا`;
-      if (statusEl) statusEl.innerHTML = `<iconify-icon icon="mdi:lock-outline" style="color:var(--text-tertiary);"></iconify-icon>`;
+    if (!mdIndex || !mdIndex.length) {
+      unitsGridEl.innerHTML = `<div class="loading">لا توجد وحدات بعد.</div>`;
       return;
     }
 
-    if (countEl) countEl.innerHTML = `<iconify-icon icon="mdi:format-list-numbered"></iconify-icon> ${total} عنصر`;
+    // كارت لكل وحدة
+    unitsGridEl.innerHTML = mdIndex.map((unit, idx) => `
+      <article class="grid-card unit-grid-card"
+               tabindex="0"
+               role="button"
+               data-unit="${unit.unit}"
+               style="animation-delay:${idx * 25}ms"
+               dir="auto">
+        <div class="grid-card-top">
+          <div class="grid-card-icon">
+            <iconify-icon icon="mdi:school-outline"></iconify-icon>
+          </div>
+          <span class="grid-card-badge" data-unit-badge>—</span>
+        </div>
+        <h3 class="grid-card-title">Unit ${unit.unit}</h3>
+        <p class="grid-card-subtitle" data-unit-subtitle>جاري التحميل...</p>
+        <div class="grid-card-progress">
+          <div class="grid-card-progress-track">
+            <div class="grid-card-progress-fill" data-unit-fill style="width:0%"></div>
+          </div>
+          <span class="grid-card-progress-text" data-unit-progress-text>0 / 0</span>
+        </div>
+      </article>
+    `).join('');
+
+    // event delegation
+    unitsGridEl.onclick = (e) => {
+      const card = e.target.closest('.unit-grid-card');
+      if (!card) return;
+      const unitNum = parseInt(card.dataset.unit, 10);
+      const unit = state.mdIndex.find(u => u.unit === unitNum);
+      if (unit) openUnit(unit);
+    };
+    unitsGridEl.onkeydown = (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const card = e.target.closest('.unit-grid-card');
+      if (!card) return;
+      e.preventDefault();
+      card.click();
+    };
+
+    // احسب الإحصائيات لكل وحدة
+    mdIndex.forEach(unit => updateUnitCard(unit));
+    renderOverview(mdIndex);
+  }
+
+  async function updateUnitCard(unit) {
+    const card = unitsGridEl.querySelector(`.unit-grid-card[data-unit="${unit.unit}"]`);
+    if (!card) return;
+
+    let totalItems = 0;
+    let savedItems = 0;
+    let filesCount = 0;
+
+    const tasks = [];
+    (unit.groups || []).forEach(group => {
+      SECTION_ORDER.forEach(key => {
+        const path = group.sections ? group.sections[key] : null;
+        if (!path) return;
+        tasks.push((async () => {
+          const total = await getSectionCount(path);
+          if (total === null) return;
+          totalItems += total;
+          savedItems += Storage.getFileStats(path).saved;
+          filesCount++;
+        })());
+      });
+    });
+    await Promise.all(tasks);
+
+    const pct = totalItems > 0 ? Math.round((savedItems / totalItems) * 100) : 0;
+
+    const badge = card.querySelector('[data-unit-badge]');
+    const subtitle = card.querySelector('[data-unit-subtitle]');
+    const fill = card.querySelector('[data-unit-fill]');
+    const ptext = card.querySelector('[data-unit-progress-text]');
+
+    if (badge) badge.textContent = totalItems > 0 ? pct + '%' : 'قريبًا';
+    if (subtitle) {
+      subtitle.textContent = totalItems === 0
+        ? 'لا يوجد محتوى بعد'
+        : `${filesCount} أقسام · ${totalItems} عنصر`;
+    }
+    if (fill) fill.style.width = pct + '%';
+    if (ptext) ptext.textContent = `${savedItems} / ${totalItems}`;
+
+    card.classList.toggle('complete', pct >= 100 && totalItems > 0);
+  }
+
+  /* ============================================================
+     GROUPS GRID (Unit Page)
+     ============================================================ */
+  async function renderGroupsGrid(unit) {
+    state.currentUnit = unit;
+    groupsGridEl.innerHTML = '';
+
+    const groups = unit.groups || [];
+    if (!groups.length) {
+      groupsGridEl.innerHTML = `<div class="loading">لا توجد مجموعات.</div>`;
+      return;
+    }
+
+    groupsGridEl.innerHTML = groups.map((group, idx) => `
+      <article class="grid-card group-grid-card"
+               tabindex="0"
+               role="button"
+               data-group-id="${group.id}"
+               style="animation-delay:${idx * 30}ms"
+               dir="auto">
+        <div class="grid-card-top">
+          <div class="grid-card-icon">
+            <iconify-icon icon="mdi:book-open-variant"></iconify-icon>
+          </div>
+          <span class="grid-card-badge" data-group-badge>—</span>
+        </div>
+        <h3 class="grid-card-title">${escapeHtml(group.label)}</h3>
+        <p class="grid-card-subtitle" data-group-subtitle>جاري التحميل...</p>
+        <div class="grid-card-progress">
+          <div class="grid-card-progress-track">
+            <div class="grid-card-progress-fill" data-group-fill style="width:0%"></div>
+          </div>
+          <span class="grid-card-progress-text" data-group-progress-text>0 / 0</span>
+        </div>
+      </article>
+    `).join('');
+
+    groupsGridEl.onclick = (e) => {
+      const card = e.target.closest('.group-grid-card');
+      if (!card) return;
+      const groupId = card.dataset.groupId;
+      const group = state.currentUnit.groups.find(g => g.id === groupId);
+      if (group) openGroup(state.currentUnit, group);
+    };
+    groupsGridEl.onkeydown = (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const card = e.target.closest('.group-grid-card');
+      if (!card) return;
+      e.preventDefault();
+      card.click();
+    };
+
+    groups.forEach(group => updateGroupCard(group));
+  }
+
+  async function updateGroupCard(group) {
+    const card = groupsGridEl.querySelector(`.group-grid-card[data-group-id="${group.id}"]`);
+    if (!card) return;
+
+    let totalItems = 0;
+    let savedItems = 0;
+    let filesCount = 0;
+
+    const tasks = [];
+    SECTION_ORDER.forEach(key => {
+      const path = group.sections ? group.sections[key] : null;
+      if (!path) return;
+      tasks.push((async () => {
+        const total = await getSectionCount(path);
+        if (total === null) return;
+        totalItems += total;
+        savedItems += Storage.getFileStats(path).saved;
+        filesCount++;
+      })());
+    });
+    await Promise.all(tasks);
+
+    const pct = totalItems > 0 ? Math.round((savedItems / totalItems) * 100) : 0;
+
+    const badge = card.querySelector('[data-group-badge]');
+    const subtitle = card.querySelector('[data-group-subtitle]');
+    const fill = card.querySelector('[data-group-fill]');
+    const ptext = card.querySelector('[data-group-progress-text]');
+
+    if (badge) badge.textContent = totalItems > 0 ? pct + '%' : 'قريبًا';
+    if (subtitle) {
+      subtitle.textContent = totalItems === 0
+        ? 'لا يوجد محتوى بعد'
+        : `${filesCount} أقسام · ${totalItems} عنصر`;
+    }
+    if (fill) fill.style.width = pct + '%';
+    if (ptext) ptext.textContent = `${savedItems} / ${totalItems}`;
+
+    card.classList.toggle('complete', pct >= 100 && totalItems > 0);
+  }
+
+  /* ============================================================
+     SECTIONS GRID (Group Page)
+     ============================================================ */
+  async function renderSectionsGrid(group) {
+    state.currentGroup = group;
+    sectionsGridEl.innerHTML = '';
+
+    sectionsGridEl.innerHTML = SECTION_ORDER.map((key, idx) => {
+      const meta = SECTION_META[key];
+      const path = group.sections ? group.sections[key] : null;
+      const exists = !!path;
+      return `
+        <article class="grid-card section-grid-card ${exists ? '' : 'missing'}"
+                 tabindex="${exists ? '0' : '-1'}"
+                 role="button"
+                 data-section-key="${key}"
+                 data-section-path="${path || ''}"
+                 style="animation-delay:${idx * 30}ms"
+                 dir="auto">
+          <div class="grid-card-top">
+            <div class="grid-card-icon" style="background: ${meta.color}22; color: ${meta.color};">
+              <iconify-icon icon="${meta.icon}"></iconify-icon>
+            </div>
+            <span class="grid-card-badge" data-section-badge>—</span>
+          </div>
+          <h3 class="grid-card-title">${meta.label}</h3>
+          <p class="grid-card-subtitle" data-section-subtitle>${exists ? 'جاري التحميل...' : 'قريبًا'}</p>
+          <div class="grid-card-progress">
+            <div class="grid-card-progress-track">
+              <div class="grid-card-progress-fill" data-section-fill style="width:0%; background: ${meta.color};"></div>
+            </div>
+            <span class="grid-card-progress-text" data-section-progress-text>0 / 0</span>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    sectionsGridEl.onclick = (e) => {
+      const card = e.target.closest('.section-grid-card');
+      if (!card || card.classList.contains('missing')) return;
+      const path = card.dataset.sectionPath;
+      const key = card.dataset.sectionKey;
+      if (!path) return;
+      openSectionFromCard(path, key);
+    };
+    sectionsGridEl.onkeydown = (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const card = e.target.closest('.section-grid-card');
+      if (!card || card.classList.contains('missing')) return;
+      e.preventDefault();
+      card.click();
+    };
+
+    // عدّادات
+    SECTION_ORDER.forEach(key => updateSectionCard(group, key));
+  }
+
+  async function updateSectionCard(group, key) {
+    const meta = SECTION_META[key];
+    const card = sectionsGridEl.querySelector(`.section-grid-card[data-section-key="${key}"]`);
+    if (!card) return;
+
+    const path = group.sections ? group.sections[key] : null;
+    if (!path) return;
+
+    const total = await getSectionCount(path);
+    const badge = card.querySelector('[data-section-badge]');
+    const subtitle = card.querySelector('[data-section-subtitle]');
+    const fill = card.querySelector('[data-section-fill]');
+    const ptext = card.querySelector('[data-section-progress-text]');
+
+    if (total === null) {
+      card.classList.add('missing');
+      card.setAttribute('tabindex', '-1');
+      if (badge) badge.textContent = 'قريبًا';
+      if (subtitle) subtitle.textContent = 'لم يُضف بعد';
+      return;
+    }
 
     const saved = Storage.getFileStats(path).saved;
     const pct = total > 0 ? Math.round((saved / total) * 100) : 0;
 
-    if (pct >= 100) {
-      row.classList.add('section-complete');
-      if (statusEl) statusEl.innerHTML = `<iconify-icon icon="mdi:check-circle" style="color:var(--success);font-size:1.5rem;"></iconify-icon>`;
-    } else if (saved > 0) {
-      if (statusEl) statusEl.innerHTML = `<span style="font-size:0.85rem;color:var(--primary);font-weight:800;">${pct}%</span>`;
+    if (badge) badge.textContent = pct + '%';
+    if (subtitle) subtitle.textContent = `${total} عنصر`;
+    if (fill) fill.style.width = pct + '%';
+    if (ptext) ptext.textContent = `${saved} / ${total}`;
+
+    card.classList.toggle('complete', pct >= 100 && total > 0);
+  }
+
+  /* ============================================================
+     Hooks (يتم تعيينها من app.js)
+     ============================================================ */
+  let onOpenUnit = null;
+  let onOpenGroup = null;
+  let onOpenSection = null;
+
+  function setHandlers(h) {
+    if (h.openUnit) onOpenUnit = h.openUnit;
+    if (h.openGroup) onOpenGroup = h.openGroup;
+    if (h.openSection) onOpenSection = h.openSection;
+  }
+
+  function openUnit(unit) { if (onOpenUnit) onOpenUnit(unit); }
+  function openGroup(unit, group) { if (onOpenGroup) onOpenGroup(unit, group); }
+  function openSectionFromCard(path, key) { if (onOpenSection) onOpenSection(path, key); }
+
+  /* ============================================================
+     Refresh (يُنادى من app.js)
+     ============================================================ */
+  async function refreshCounts() {
+    if (state.mdIndex.length) {
+      state.mdIndex.forEach(unit => updateUnitCard(unit));
+      renderOverview(state.mdIndex);
+    }
+    if (state.currentUnit) {
+      (state.currentUnit.groups || []).forEach(group => updateGroupCard(group));
+    }
+    if (state.currentGroup) {
+      SECTION_ORDER.forEach(key => updateSectionCard(state.currentGroup, key));
     }
   }
 
-  function updateAllUnitProgress(mdIndex) {
-    mdIndex.forEach(unit => {
-      const block = treeEl.querySelector(`.unit-block[data-unit="${unit.unit}"]`);
-      if (!block) return;
-
-      let totalItems = 0;
-      let savedItems = 0;
-      let filesCount = 0;
-
-      (unit.groups || []).forEach(group => {
-        SECTION_ORDER.forEach(key => {
-          const path = group.sections ? group.sections[key] : null;
-          if (!path) return;
-          const cached = wordCountCache.get(path);
-          if (cached === null || cached === undefined) return;
-          totalItems += cached;
-          savedItems += Storage.getFileStats(path).saved;
-          filesCount++;
-        });
-      });
-
-      const pct = totalItems > 0 ? Math.round((savedItems / totalItems) * 100) : 0;
-      const fill = block.querySelector('[data-unit-fill]');
-      const pctEl = block.querySelector('[data-unit-pct]');
-      const savedEl = block.querySelector('[data-unit-saved]');
-      const counterText = block.querySelector('[data-unit-counter-text]');
-      const subtitle = block.querySelector('[data-unit-subtitle]');
-
-      if (fill) fill.style.width = pct + '%';
-      if (pctEl) pctEl.textContent = pct + '%';
-      if (savedEl) savedEl.textContent = `${savedItems} من ${totalItems} عنصر`;
-      if (counterText) {
-        counterText.textContent = totalItems === 0 ? 'قريبًا' : `${totalItems} عنصر`;
-      }
-      if (subtitle) {
-        subtitle.textContent = totalItems === 0
-          ? 'لا يوجد محتوى بعد'
-          : `${filesCount} أقسام · ${totalItems} عنصر`;
-      }
-
-      block.classList.toggle('unit-complete', pct >= 100 && totalItems > 0);
-    });
-  }
-
-  async function refreshAll(mdIndex) {
-    wordCountCache.clear();
-    await loadAllSectionCounts(mdIndex);
-  }
-
-  return { renderTree, refreshAll };
+  return {
+    renderUnitsGrid,
+    renderGroupsGrid,
+    renderSectionsGrid,
+    refreshCounts,
+    setHandlers,
+    getState: () => state
+  };
 })();

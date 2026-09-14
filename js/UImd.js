@@ -2,14 +2,13 @@
    UImd.js — محرك عرض Markdown ثابت
    - Parse (marked)
    - Emoji → iconify (🟢 / 🟡 / 🔴)
-   - Build accordions (Forward + Build pass) داخل grid wrapper
-   - Group checkbox في هيدر كل مجموعة
-   - تحويل جداول الكلمات إلى word-cards
+   - Build accordions داخل grid wrapper
+   - تحويل جداول الكلمات إلى word-cards (يقرأ كل الأعمدة ديناميكيًا)
    - Cache DOM الناتج
    ========================================================= */
 window.Uimd = (function () {
 
-  const renderedCache = new Map(); // filePath -> HTMLElement (fragment wrapper)
+  const renderedCache = new Map();
 
   /* ---------- Emoji replacement ---------- */
   function replaceEmojisInTextNodes(node) {
@@ -53,9 +52,7 @@ window.Uimd = (function () {
     });
     if (current) sections.push(current);
 
-    // Rebuild
     while (container.firstChild) container.removeChild(container.firstChild);
-
     rootNodes.forEach(n => container.appendChild(n));
 
     if (sections.length) {
@@ -99,14 +96,29 @@ window.Uimd = (function () {
     }
   }
 
-  /* ---------- Transform word tables → word cards ---------- */
+  /* ---------- ✅ Transform word tables → word cards (dynamic columns) ---------- */
   function transformWordTables(container) {
     const tables = container.querySelectorAll('.accordion-content table');
-    tables.forEach((table, tableIndex) => {
 
-      // ✅ حماية: لو الجدول مفيهوش أيقونة صعوبة (🟢/🟡/🔴) سيبه جدول عادي
+    tables.forEach((table, tableIndex) => {
+      // حماية: لازم يكون فيه أيقونة صعوبة
       const hasStatusIcon = !!table.querySelector('tbody tr td iconify-icon[icon="mdi:circle"]');
       if (!hasStatusIcon) return;
+
+      // اقرأ عناوين الأعمدة من thead
+      const headRow = table.querySelector('thead tr');
+      const headerCells = headRow ? Array.from(headRow.querySelectorAll('th')) : [];
+
+      // ابني قائمة بعناوين الأعمدة (بعد استثناء عمود الحالة الأول لو فاضي)
+      const columnLabels = headerCells.map(th => th.textContent.trim());
+
+      // لو العمود الأول فاضي (عمود الحالة)، سيب الـ label بتاعه فاضي
+      // نتخطى أول عمود لو هو حالة (fاضي header أو أول header فيه أيقونة)
+      let dataStartIdx = 0;
+      // لو أول label فاضي، يبقى العمود الأول هو الحالة
+      if (columnLabels[0] === '' || /^\s*$/.test(columnLabels[0])) {
+        dataStartIdx = 1;
+      }
 
       const rows = Array.from(table.querySelectorAll('tbody tr'));
       const list = document.createElement('div');
@@ -117,34 +129,63 @@ window.Uimd = (function () {
         const cells = Array.from(row.querySelectorAll('td'));
         if (cells.length < 2) return;
 
-        let idx = 0;
+        // استخرج الحالة (لو موجودة) + باقي الأعمدة
         let statusHtml = '';
-        if (cells.length >= 3) {
+        let dataCells = cells;
+
+        // لو الخلية الأولى فيها أيقونة دايرة → هي الحالة
+        const firstCellHasIcon = cells[0].querySelector('iconify-icon[icon="mdi:circle"]');
+        if (firstCellHasIcon) {
           statusHtml = cells[0].innerHTML.trim();
-          idx = 1;
+          dataCells = cells.slice(1);
         }
 
-        const wordHtml = cells[idx] ? cells[idx].innerHTML.trim() : '';
-        const wordText = cells[idx] ? cells[idx].textContent.trim() : '';
-        const meaningHtml = cells[idx + 1] ? cells[idx + 1].innerHTML.trim() : '';
-        const meaningText = cells[idx + 1] ? cells[idx + 1].textContent.trim() : '';
-        const exampleHtml = cells[idx + 2] ? cells[idx + 2].innerHTML.trim() : '';
-        if (!wordText) return;
+        // لو مفيش كلمة، تخطى
+        if (!dataCells.length) return;
+        const primaryText = dataCells[0] ? dataCells[0].textContent.trim() : '';
+        if (!primaryText) return;
 
-        const slug = wordText.replace(/\s+/g, '_').toLowerCase();
+        // ابني الكارت
+        const slug = primaryText.replace(/\s+/g, '_').toLowerCase();
         const card = document.createElement('div');
         card.className = 'word-card';
         card.setAttribute('dir', 'auto');
         card.dataset.wordSlug = `t${tableIndex}_r${rowIndex}_${slug}`;
-        card.dataset.wordText = wordText;
-        card.dataset.meaningText = meaningText;
+        card.dataset.wordText = primaryText;
+        // المعنى بيبقى العمود اللي بعده
+        card.dataset.meaningText = dataCells[1] ? dataCells[1].textContent.trim() : '';
+
+        // ابني الأعمدة الإضافية كـ rows
+        // العمود الأول (dataCells[0]) = الكلمة الأساسية (primary)
+        // باقي الأعمدة = labeled rows
+        const primaryHtml = dataCells[0].innerHTML.trim();
+
+        const extraRowsHtml = [];
+        for (let i = 1; i < dataCells.length; i++) {
+          const cellHtml = dataCells[i].innerHTML.trim();
+          const cellText = dataCells[i].textContent.trim();
+          if (!cellText) continue;
+
+          // ابحث عن الـ label المناسب من columnLabels
+          // dataCells[i] corresponds to (dataStartIdx + i) in original header
+          let label = '';
+          const originalIdx = dataStartIdx + i;
+          if (columnLabels[originalIdx]) {
+            label = columnLabels[originalIdx];
+          }
+
+          // لو مفيش label، اعرض بدون
+          const labelHtml = label ? `<span class="field-label">${label}:</span> ` : '';
+          extraRowsHtml.push(
+            `<div class="word-field"><span class="word-field-label">${labelHtml}</span><span class="word-field-value">${cellHtml}</span></div>`
+          );
+        }
 
         card.innerHTML = `
           ${statusHtml ? `<span class="word-status">${statusHtml}</span>` : ''}
           <div class="word-main">
-            <div class="word-en">${wordHtml}</div>
-            <div class="word-ar">${meaningHtml}</div>
-            ${exampleHtml && exampleHtml !== '-' ? `<div class="word-example">${exampleHtml}</div>` : ''}
+            <div class="word-en">${primaryHtml}</div>
+            ${extraRowsHtml.join('')}
           </div>
           <div class="word-controls-slot"></div>
         `;

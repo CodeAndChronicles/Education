@@ -1,6 +1,5 @@
 /* =========================================================
-   app.js — نقطة التشغيل الرئيسية
-   + Wake Lock + openSectionAt (للبحث)
+   app.js — 4 صفحات + Breadcrumb + Wake Lock
    ========================================================= */
 (function () {
   "use strict";
@@ -9,9 +8,19 @@
 
   // ---------- DOM ----------
   const homePage = document.getElementById('homePage');
+  const unitPage = document.getElementById('unitPage');
+  const groupPage = document.getElementById('groupPage');
   const viewerPage = document.getElementById('viewerPage');
-  const unitsTree = document.getElementById('unitsTree');
+
+  const unitBackBtn = document.getElementById('unitBackBtn');
+  const groupBackBtn = document.getElementById('groupBackBtn');
   const backBtn = document.getElementById('backBtn');
+
+  const unitBreadcrumb = document.getElementById('unitBreadcrumb');
+  const groupBreadcrumb = document.getElementById('groupBreadcrumb');
+  const viewerBreadcrumb = document.getElementById('viewerBreadcrumb');
+  const unitHero = document.getElementById('unitHero');
+
   const viewerTitleText = document.getElementById('viewerTitleText');
   const markdownContent = document.getElementById('markdownContent');
   const progressText = document.getElementById('progressText');
@@ -27,8 +36,10 @@
 
   // ---------- State ----------
   let mdIndex = [];
+  let currentUnit = null;
+  let currentGroup = null;
   let currentSectionPath = null;
-  let currentSectionId = null;
+  let currentSectionKey = null;
 
   // ---------- Helpers ----------
   function showToast(msg, duration = 1800) {
@@ -36,6 +47,17 @@
     toast.classList.add('show');
     clearTimeout(window.__toastT);
     window.__toastT = setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  function hideAllPages() {
+    homePage.classList.add('hidden');
+    unitPage.classList.add('hidden');
+    groupPage.classList.add('hidden');
+    viewerPage.classList.add('hidden');
+  }
+
+  function scrollTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function copyRowText(word, translation) {
@@ -55,6 +77,36 @@
   }
 
   /* ============================================================
+     BREADCRUMB builder
+     ============================================================ */
+  function buildBreadcrumb(el, items) {
+    // items = [{label, onClick}, ...] — آخر واحد current (بدون onClick)
+    el.innerHTML = items.map((item, i) => {
+      const isLast = i === items.length - 1;
+      if (isLast) {
+        return `<span class="current">${escapeHtml(item.label)}</span>`;
+      }
+      return `<a data-bc-index="${i}">${escapeHtml(item.label)}</a><span class="sep">›</span>`;
+    }).join('');
+
+    el.querySelectorAll('a[data-bc-index]').forEach(a => {
+      a.addEventListener('click', () => {
+        const idx = parseInt(a.dataset.bcIndex, 10);
+        items[idx].onClick();
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  /* ============================================================
      WAKE LOCK
      ============================================================ */
   const WakeLock = (function () {
@@ -71,9 +123,7 @@
           if (enabled) scheduleReacquire();
         });
         return true;
-      } catch (e) {
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
     function scheduleReacquire() {
@@ -106,14 +156,10 @@
       enabled = false;
       localStorage.setItem(STORAGE_KEY, 'false');
       updateUI();
-      if (wakeLock) {
-        wakeLock.release().catch(() => {});
-        wakeLock = null;
-      }
+      if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
       clearTimeout(retryTimer);
     }
 
-    /* ✅ تم إصلاح النص ليعكس الحالة الفعلية */
     function updateUI() {
       if (enabled) {
         wakeToggle.classList.add('active');
@@ -129,7 +175,6 @@
     document.addEventListener('visibilitychange', () => {
       if (enabled && document.visibilityState === 'visible') request();
     });
-
     window.addEventListener('beforeunload', () => {
       if (wakeLock) wakeLock.release().catch(() => {});
     });
@@ -154,10 +199,8 @@
         enabled = false;
         updateUI();
       }
-
       wakeToggle.addEventListener('click', () => {
-        if (enabled) disable();
-        else enable();
+        if (enabled) disable(); else enable();
       });
     }
 
@@ -165,7 +208,7 @@
   })();
 
   /* ============================================================
-     Word controls
+     Word controls (in viewer)
      ============================================================ */
   function addWordControls(rootEl, fileId) {
     const cards = rootEl.querySelectorAll('.word-list .word-card');
@@ -251,7 +294,6 @@
     markdownContent.querySelectorAll('.accordion-group').forEach(group => {
       const groupCb = group.querySelector('[data-group-toggle]');
       if (!groupCb) return;
-
       groupCb.addEventListener('change', (e) => {
         const checked = e.target.checked;
         group.querySelectorAll('.word-card[data-word-id]').forEach(card => {
@@ -294,16 +336,11 @@
     progressFill.style.width = (total ? (saved / total) * 100 : 0) + '%';
   }
 
-  /* ============================================================
-     Search highlight
-     ============================================================ */
   function highlightMatchInViewer(info) {
     if (!info || !info.word) return;
-
     const target = info.word.toLowerCase().trim();
     const cards = markdownContent.querySelectorAll('.word-card[data-word-id]');
     let found = null;
-
     for (const card of cards) {
       const wt = (card.dataset.wordText || '').toLowerCase().trim();
       if (wt === target) { found = card; break; }
@@ -314,7 +351,6 @@
         if (wt.includes(target)) { found = card; break; }
       }
     }
-
     if (!found) return;
 
     let parent = found.parentElement;
@@ -327,26 +363,108 @@
       }
       parent = parent.parentElement;
     }
-
     found.classList.add('search-highlight');
-    setTimeout(() => {
-      found.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 80);
-
-    setTimeout(() => {
-      found.classList.remove('search-highlight');
-    }, 4500);
+    setTimeout(() => found.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    setTimeout(() => found.classList.remove('search-highlight'), 4500);
   }
 
   /* ============================================================
-     Open section
+     PAGE NAVIGATION
      ============================================================ */
-  async function openSection(sectionPath, title, searchInfo) {
-    homePage.classList.add('hidden');
+  function showHome() {
+    hideAllPages();
+    homePage.classList.remove('hidden');
+    UiCards.refreshCounts();
+    scrollTop();
+  }
+
+  function showUnitPage(unit) {
+    hideAllPages();
+    unitPage.classList.remove('hidden');
+
+    // Hero
+    unitHero.innerHTML = `
+      <div class="unit-hero-inner">
+        <div class="unit-hero-badge">${unit.unit}</div>
+        <div class="unit-hero-text">
+          <h1>Unit ${unit.unit}</h1>
+          <p>اختر مجموعة الدروس للمذاكرة</p>
+        </div>
+      </div>
+    `;
+
+    // Breadcrumb
+    buildBreadcrumb(unitBreadcrumb, [
+      { label: 'الرئيسية', onClick: showHome },
+      { label: `Unit ${unit.unit}` }
+    ]);
+
+    UiCards.renderGroupsGrid(unit);
+    scrollTop();
+  }
+
+  function showGroupPage(unit, group) {
+    hideAllPages();
+    groupPage.classList.remove('hidden');
+
+    buildBreadcrumb(groupBreadcrumb, [
+      { label: 'الرئيسية', onClick: showHome },
+      { label: `Unit ${unit.unit}`, onClick: () => showUnitPage(unit) },
+      { label: group.label }
+    ]);
+
+    UiCards.renderSectionsGrid(group);
+    scrollTop();
+  }
+
+  function showViewerPage(path, key) {
+    hideAllPages();
     viewerPage.classList.remove('hidden');
-    viewerTitleText.textContent = title || sectionPath;
+    scrollTop();
+  }
+
+  /* ============================================================
+     HANDLERS between UiCards and app
+     ============================================================ */
+  UiCards.setHandlers({
+    openUnit: (unit) => {
+      Storage.setLastUnit(unit.unit);
+      showUnitPage(unit);
+    },
+    openGroup: (unit, group) => {
+      showGroupPage(unit, group);
+    },
+    openSection: (path, key) => {
+      openSection(path, key);
+    }
+  });
+
+  /* ============================================================
+     OPEN SECTION (Viewer)
+     ============================================================ */
+  async function openSection(sectionPath, sectionKey) {
+    // اعرف معلومات الوحدة/المجموعة من الـ path
+    // نبني من الحالة الحالية
     currentSectionPath = sectionPath;
-    currentSectionId = sectionPath;
+    currentSectionKey = sectionKey;
+
+    // حدد الـ labels
+    const meta = {
+      vocabulary:        { label: 'Vocabulary' },
+      synonyms_antonyms: { label: 'Synonyms & Antonyms' },
+      idioms:            { label: 'Idioms' },
+      derivatives:       { label: 'Derivatives' }
+    }[sectionKey] || { label: sectionKey };
+
+    // viewer title
+    let titleText = meta.label;
+    if (currentUnit) titleText = `Unit ${currentUnit.unit} · ${meta.label}`;
+    viewerTitleText.textContent = titleText;
+
+    // breadcrumb
+    buildViewerBreadcrumb();
+
+    showViewerPage(sectionPath, sectionKey);
 
     markdownContent.innerHTML = `
       <div style="padding:20px;">
@@ -360,22 +478,17 @@
       if (!mdText) throw new Error('File not found');
 
       const fragment = Uimd.getRendered(sectionPath, mdText);
-
       markdownContent.innerHTML = '';
       while (fragment.firstChild) {
         markdownContent.appendChild(fragment.firstChild);
       }
 
-      addWordControls(markdownContent, currentSectionId);
-      attachGroupCheckboxes(currentSectionId);
+      addWordControls(markdownContent, sectionPath);
+      attachGroupCheckboxes(sectionPath);
       attachAccordionEvents();
 
-      updateGroupCounters(currentSectionId);
-      updateOverallProgress(currentSectionId);
-
-      if (searchInfo) {
-        setTimeout(() => highlightMatchInViewer(searchInfo), 120);
-      }
+      updateGroupCounters(sectionPath);
+      updateOverallProgress(sectionPath);
     } catch (err) {
       console.error(err);
       markdownContent.innerHTML = `
@@ -386,6 +499,48 @@
         </div>`;
     }
   }
+
+  function buildViewerBreadcrumb() {
+    const items = [{ label: 'الرئيسية', onClick: showHome }];
+    if (currentUnit) {
+      const u = currentUnit;
+      items.push({
+        label: `Unit ${u.unit}`,
+        onClick: () => showUnitPage(u)
+      });
+      if (currentGroup) {
+        const g = currentGroup;
+        items.push({
+          label: g.label,
+          onClick: () => showGroupPage(u, g)
+        });
+      }
+    }
+    const meta = {
+      vocabulary: 'Vocabulary',
+      synonyms_antonyms: 'Synonyms & Antonyms',
+      idioms: 'Idioms',
+      derivatives: 'Derivatives'
+    }[currentSectionKey] || currentSectionKey;
+    if (meta) items.push({ label: meta });
+    buildBreadcrumb(viewerBreadcrumb, items);
+  }
+
+  /* ============================================================
+     Back buttons
+     ============================================================ */
+  unitBackBtn.addEventListener('click', showHome);
+
+  groupBackBtn.addEventListener('click', () => {
+    if (currentUnit) showUnitPage(currentUnit);
+    else showHome();
+  });
+
+  backBtn.addEventListener('click', () => {
+    if (currentUnit && currentGroup) showGroupPage(currentUnit, currentGroup);
+    else if (currentUnit) showUnitPage(currentUnit);
+    else showHome();
+  });
 
   /* ============================================================
      Expand / Collapse
@@ -413,13 +568,13 @@
   });
 
   /* ============================================================
-     Reset progress
+     Reset
      ============================================================ */
   resetProgressBtn.addEventListener('click', () => {
-    if (!currentSectionId) return;
+    if (!currentSectionPath) return;
     if (!confirm('هل أنت متأكد من مسح كل التقدم في هذا القسم؟')) return;
 
-    Storage.resetFile(currentSectionId);
+    Storage.resetFile(currentSectionPath);
 
     markdownContent.querySelectorAll('.word-card[data-word-id]').forEach(card => {
       const cb = card.querySelector('input[type="checkbox"]');
@@ -431,26 +586,13 @@
       cb.indeterminate = false;
     });
 
-    updateGroupCounters(currentSectionId);
-    updateOverallProgress(currentSectionId);
+    updateGroupCounters(currentSectionPath);
+    updateOverallProgress(currentSectionPath);
     showToast('تم مسح التقدم');
   });
 
   /* ============================================================
-     Back button
-     ============================================================ */
-  backBtn.addEventListener('click', async () => {
-    viewerPage.classList.add('hidden');
-    homePage.classList.remove('hidden');
-    currentSectionId = null;
-    currentSectionPath = null;
-
-    await UiCards.refreshAll(mdIndex);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  /* ============================================================
-     Resize
+     Resize + Scroll
      ============================================================ */
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -463,9 +605,6 @@
     }, 120);
   });
 
-  /* ============================================================
-     Top bar shadow on scroll
-     ============================================================ */
   window.addEventListener('scroll', () => {
     if (!topBar) return;
     topBar.classList.toggle('scrolled', window.scrollY > 20);
@@ -481,18 +620,60 @@
       mdIndex = await res.json();
 
       Search.setMdIndex(mdIndex);
-      Search.setOpenHandler((path, title, info) => openSection(path, title, info));
+      Search.setOpenHandler((path, title, info) => {
+        // البحث: افتح على طول في الـ viewer
+        // حاول نعرف الوحدة/المجموعة من الـ path
+        resolveContextFromPath(path);
+        openSection(path, guessSectionKeyFromPath(path));
+        if (info) setTimeout(() => highlightMatchInViewer(info), 120);
+      });
 
-      await UiCards.renderTree(mdIndex, (path, title) => openSection(path, title));
+      // اربط UiCards
+      await UiCards.renderUnitsGrid(mdIndex, {
+        openUnit: (unit) => { /* محجوز */ }
+      });
 
-      // ابدأ ببناء فهرس البحث في الخلفية
+      // يبدأ ببناء فهرس البحث في الخلفية
       setTimeout(() => {
         SearchIndex.getIndex(mdIndex).catch(e => console.warn('Index build failed', e));
       }, 800);
     } catch (err) {
       console.error(err);
-      unitsTree.innerHTML =
+      const grid = document.getElementById('unitsGrid');
+      if (grid) grid.innerHTML =
         `<div class="loading" style="color:var(--danger);">⚠️ Could not load md.json.</div>`;
+    }
+  }
+
+  function guessSectionKeyFromPath(path) {
+    const name = path.split('/').pop().toLowerCase();
+    if (name.includes('synonym') || name.includes('antonym')) return 'synonyms_antonyms';
+    if (name.includes('idiom')) return 'idioms';
+    if (name.includes('derivative')) return 'derivatives';
+    if (name.includes('vocab')) return 'vocabulary';
+    return 'vocabulary';
+  }
+
+  function resolveContextFromPath(path) {
+    // ابني الحالة من mdIndex
+    let found = null;
+    for (const unit of mdIndex) {
+      for (const group of (unit.groups || [])) {
+        for (const key of ['vocabulary', 'synonyms_antonyms', 'idioms', 'derivatives']) {
+          if (group.sections && group.sections[key] === path) {
+            found = { unit, group, key };
+            break;
+          }
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+    if (found) {
+      currentUnit = found.unit;
+      currentGroup = found.group;
+      currentSectionKey = found.key;
+      Storage.setLastUnit(found.unit.unit);
     }
   }
 
