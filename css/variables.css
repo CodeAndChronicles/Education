@@ -1,60 +1,55 @@
 /* ============================================================
-   FONT
+   ✅ الخط: Cairo من Google Fonts (واضح جدًا عربي + إنجليزي)
+   - يتم تحميله من index.html
    ============================================================ */
-@font-face {
-  font-family: 'AppFont';
-  src: url('../Ui/Font.ttf') format('truetype');
-  font-display: swap;
-}
 
 /* ============================================================
-   LIGHT THEME — أخضر أفتح وأدفأ + surfaces نضيفة
+   LIGHT THEME — أخضر أفتح وأدفأ
    ============================================================ */
 :root {
-  --font-main: 'AppFont', 'Segoe UI', 'Inter', system-ui, -apple-system, 'Tahoma', sans-serif;
+  --font-main: 'Cairo', 'Segoe UI', 'Inter', system-ui, -apple-system, 'Tahoma', sans-serif;
 
-  /* خطوط أكبر للقراءة المريحة */
+  /* خطوط */
   --font-size-xs: 0.8125rem;   /* 13px */
   --font-size-sm: 0.9375rem;   /* 15px */
   --font-size-md: 1.0625rem;   /* 17px */
   --font-size-lg: 1.25rem;     /* 20px */
   --font-size-xl: 1.5rem;      /* 24px */
   --font-size-2xl: 2rem;       /* 32px */
-  --font-size-3xl: 2.5rem;     /* 40px */
 
-  /* خلفيات فاتحة دافئة */
+  /* خلفيات */
   --bg: #f6faf8;
   --bg-elevated: #ffffff;
   --surface: #ffffff;
   --surface-2: #eef5f1;
   --surface-3: #e4efe9;
 
-  /* نصوص أوضح */
+  /* نصوص */
   --text: #0d211c;
   --text-secondary: #4a635b;
   --text-tertiary: #7a8f88;
   --border: #d9e8e0;
   --border-strong: #b9d2c5;
 
-  /* ✅ أخضر أفتح وأدفأ — identity محفوظة */
-  --primary: #2a8c6a;          /* أخضر متوسط — أفتح من #1a7a5a */
+  /* الأخضر */
+  --primary: #2a8c6a;
   --primary-hover: #217a5a;
-  --primary-light: #4fb08c;    /* فاتح للـ hover والتدرجات */
-  --primary-soft: #d9efe5;     /* خلفيات ثانوية */
-  --primary-glow: #eaf6f0;     /* خلفيات خفيفة جدًا */
-  --primary-deep: #1a6650;     /* للحالات النشطة */
+  --primary-light: #4fb08c;
+  --primary-soft: #d9efe5;
+  --primary-glow: #eaf6f0;
+  --primary-deep: #1a6650;
 
-  /* Accent كهرماني */
+  /* Accent */
   --accent: #d19634;
   --accent-soft: #fcefd8;
 
-  /* حالات دلالية */
+  /* حالات */
   --success: #2a8c6a;
   --warning: #d19634;
   --danger: #c0392b;
   --info: #2c6fd1;
 
-  /* ظلال ناعمة */
+  /* ظلال */
   --shadow-sm: 0 2px 6px rgba(15, 40, 30, 0.04);
   --shadow: 0 6px 18px rgba(15, 40, 30, 0.07);
   --shadow-lg: 0 14px 32px rgba(15, 40, 30, 0.12);
@@ -64,20 +59,20 @@
   --space-2xs: 2px;
   --space-xs: 6px;
   --space-sm: 10px;
-  --space-md: 18px;
-  --space-lg: 26px;
-  --space-xl: 36px;
-  --space-2xl: 48px;
+  --space-md: 16px;
+  --space-lg: 22px;
+  --space-xl: 30px;
+  --space-2xl: 44px;
 
   /* حواف */
   --radius-xs: 8px;
   --radius-sm: 12px;
-  --radius: 18px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
   --radius-pill: 100px;
 
-  /* انتقالات موحّدة */
+  /* انتقالات */
   --transition-fast: 0.15s ease;
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -94,7 +89,7 @@
 }
 
 /* ============================================================
-   DARK THEME — أخضر مضيء مريح للعين
+   DARK THEME
    ============================================================ */
 .dark {
   --bg: #0d1714;
@@ -109,7 +104,7 @@
   --border: #24382f;
   --border-strong: #34564a;
 
-  --primary: #5bc99e;          /* أخضر مضيء مريح */
+  --primary: #5bc99e;
   --primary-hover: #77d9b1;
   --primary-light: #3fa77f;
   --primary-soft: #1a3b2f;
